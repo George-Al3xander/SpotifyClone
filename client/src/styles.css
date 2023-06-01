@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+
+.player {
+    position: fixed;
+    bottom: 0;
+    margin-inline: auto;
+    width: 100%;
+}
+
+.side-menu {
+    flex-basis: 30%;
+}
