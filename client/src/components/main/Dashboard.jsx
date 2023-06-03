@@ -29,7 +29,7 @@ const Dashboard = ({code}) => {
     }
 
     const getTopArtists = async () => {
-        const {data} = await axios.get("https://api.spotify.com/v1/me/playlists ", {
+        const {data} = await axios.get("https://api.spotify.com/v1/me/albums", {
       headers: {
         Authorization: `Bearer ${token}`
       },
@@ -37,45 +37,70 @@ const Dashboard = ({code}) => {
     console.log(data)
     }
 
-    const getPlaylistTracks = async (apiId) => {
+    const getPlaylistNextTracks = async (apiId) => {
       const {data} = await axios.get(apiId, {
         headers: {
           Authorization: `Bearer ${token}`
         },        
       })
-      let tracks = data.items;    
-      console.log(data)    
-      if(data.next != null) {
-        return [...tracks].concat(getPlaylistTracks(data.next));
-      }
-
-      return tracks
+      
+      if(data.next != null) {         
+          return  data.items.concat(await getPlaylistNextTracks(data.next));         
+      }  else {
+        return  data.items
+      } 
+      
     }
     
-    const getPlaylist = async (id) => {  
-      let currentApi;
-      let small  = "16rriBgSVvBmlMFw9gwYP0"
-      let big = "0xtweFcEO3q0LtNyahzkZN"
-      id = big
+    const getPlaylist = async (id) => {        
       const {data} = await axios.get(`https://api.spotify.com/v1/playlists/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },        
-      })
-      let tracks = data.tracks.items;   
-      console.log(data.tracks.next)
+      });
+      let tracks = data.tracks.items;        
       if(data.tracks.next != null) {        
-        tracks = [...tracks].concat(getPlaylistTracks(data.tracks.next));
-      } else {
-        tracks = data.tracks.items;         
-      }      
-      
-      console.log(tracks);
+        tracks = [...tracks].concat(await getPlaylistNextTracks(data.tracks.next));
+      }   
+      console.log({
+        tracks: tracks,
+        name: data.name,
+        description: data.description,
+        followers: data.followers.total,
+        owner: {
+            display_name: data.owner.display_name,
+            urls: data.owner.external_urls
+        },
+        id: data.id,
+        uri: data.uri,
+      })
       return {
-        name: data.name
+        tracks: tracks,
+        name: data.name,
+        description: data.description,
+        followers: data.followers.total,
+        owner: {
+            display_name: data.owner.display_name,
+            urls: data.owner.external_urls
+        },
+        id: data.id,
+        uri: data.uri,
+        img: data.images
       }
     }
 
+    const getAlbum = async (id) => {     
+      id = "01FCoGEQ3NFWF4fHJzdiax"
+      const {data} = await axios.get(`https://api.spotify.com/v1/albums/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },        
+      });
+      return data
+    }
+    //Madvilliany
+    //uri - "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
+    //id - "01FCoGEQ3NFWF4fHJzdiax"
     return (
       <>      
       <main className="container">
@@ -87,7 +112,7 @@ const Dashboard = ({code}) => {
           </Routes>
         <input type="text" onChange={searchArtist}/>
         <button onClick={getPlaylist}>Get playlist</button>
-        <button onClick={getTopArtists}>Get ALL playlists</button>
+        <button onClick={getAlbum}>Test btn</button>
         </div>
       </main>
         <div className="player">

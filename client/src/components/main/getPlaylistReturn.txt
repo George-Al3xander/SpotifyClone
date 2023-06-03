@@ -5,10 +5,10 @@
     owner: {
         display_name: data.owner.display_name,
         urls: data.owner.external_urls
-    }
+    },
     id: data.id,
     uri: data.uri,
-    tracks
+    
 
 
     }
