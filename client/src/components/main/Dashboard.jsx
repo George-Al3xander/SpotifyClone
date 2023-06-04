@@ -28,13 +28,22 @@ const Dashboard = ({code}) => {
     console.log(data)
     }
 
-    const getTopArtists = async () => {
-        const {data} = await axios.get("https://api.spotify.com/v1/me/albums", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-    })    
-    console.log(data)
+    const testFunction = async () => {
+    //     const {data} = await axios.get("https://api.spotify.com/v1/me/albums", {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`
+    //   },
+    // })    
+
+    const playlist = await getPlaylist("16rriBgSVvBmlMFw9gwYP0");
+
+    let duration = await playlist.tracks.reduce((prev,curr) => {      
+            return  prev + curr.track.duration_ms
+
+        }, 0);
+
+        //return duration
+    console.log(duration)
     }
 
     const getPlaylistNextTracks = async (apiId) => {
@@ -52,7 +61,9 @@ const Dashboard = ({code}) => {
       
     }
     
-    const getPlaylist = async (id) => {        
+    const getPlaylist = async (id) => { 
+      let small  = "16rriBgSVvBmlMFw9gwYP0"      
+      let big = "0xtweFcEO3q0LtNyahzkZN"      
       const {data} = await axios.get(`https://api.spotify.com/v1/playlists/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -62,7 +73,8 @@ const Dashboard = ({code}) => {
       if(data.tracks.next != null) {        
         tracks = [...tracks].concat(await getPlaylistNextTracks(data.tracks.next));
       }   
-      console.log({
+      console.log(
+        {
         tracks: tracks,
         name: data.name,
         description: data.description,
@@ -73,7 +85,11 @@ const Dashboard = ({code}) => {
         },
         id: data.id,
         uri: data.uri,
-      })
+        img: data.images[0].url
+
+      }
+     // data
+      )
       return {
         tracks: tracks,
         name: data.name,
@@ -85,12 +101,12 @@ const Dashboard = ({code}) => {
         },
         id: data.id,
         uri: data.uri,
-        img: data.images
+        img: data.images[0].url
       }
     }
 
     const getAlbum = async (id) => {     
-      id = "01FCoGEQ3NFWF4fHJzdiax"
+      id = "01FCoGEQ3NFWF4fHJzdiax";
       const {data} = await axios.get(`https://api.spotify.com/v1/albums/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -112,7 +128,7 @@ const Dashboard = ({code}) => {
           </Routes>
         <input type="text" onChange={searchArtist}/>
         <button onClick={getPlaylist}>Get playlist</button>
-        <button onClick={getAlbum}>Test btn</button>
+        <button onClick={testFunction}>Test btn</button>
         </div>
       </main>
         <div className="player">
