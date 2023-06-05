@@ -15,3 +15,8 @@
 .side-menu {
     flex-basis: 30%;
 }
+
+
+#root {
+    padding-bottom: 10vh;
+}

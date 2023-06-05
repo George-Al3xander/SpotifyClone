@@ -1,17 +1,16 @@
 import React from "react";
 
+//Track time display
+// function millisToMinutesAndSeconds(millis) {
+//     var minutes = Math.floor(millis / 60000);
+//     var seconds = ((millis % 60000) / 1000).toFixed(0);
+//     return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+//   }
 
 
-const DisplayPlaylist = ({playlist}) => {
-
-    function getPlaylistLength() {
-        let duration = playlist.tracks.reduce((prev,curr) => {
-            return prev + curr.track.duration_ms
-
-        }, 0);
-
-        return duration
-    }
+const DisplayPlaylist = (props) => {
+    let playlist = props.playlist;
+    console.log(playlist.duration) 
     return(
         <div className="list">
             <div className="list-top">
@@ -19,14 +18,14 @@ const DisplayPlaylist = ({playlist}) => {
                 <img src={playlist.img} alt="" />    
                 </div>  
                 <div className="list-top-titles">
-                    <h2>Playlist</h2>
+                    <h2>{playlist.isPublic ? "Public" : "Private"} Playlist</h2>
                     <h1>{playlist.name}</h1>
                     {playlist.description != "" ? <h2 className="description">{playlist.description}</h2> : null}
                     <div className="list-top-main-info">
-                        <h2><a href={playlist.owner.url.spotify}>{playlist.owner.display_name}</a></h2>
+                        <h2><a href={playlist.owner.urls.spotify}>{playlist.owner.display_name}</a></h2>
                         {playlist.followers > 0 ? <h2>{playlist.followers} likes</h2> : null}
-                        <h2>{playlist.tracks.length} songs</h2>
-
+                        <h2>{playlist.tracks.length} songs,</h2>
+                        <h2><span>{playlist.duration}</span></h2>
                     </div>
                 </div>              
             </div>
@@ -41,3 +40,6 @@ const DisplayPlaylist = ({playlist}) => {
         </div>
     )
 }
+
+
+export default DisplayPlaylist

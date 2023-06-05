@@ -1,0 +1,18 @@
+return  {
+    name: track.name,
+    uri: track.uri,  
+    isExplicit: track.explicit, 
+    img: {
+        640: track.album.images[0].url,
+        300: track.album.images[1].url,
+        64: track.album.images[2].url,
+    }
+    
+    //track.album.images[0].url,
+    album: {
+        name: track.album.name,
+        uri: track.album.uri,
+    }
+    duration: track.duration_ms,
+    artists: track.album.artists
+}
