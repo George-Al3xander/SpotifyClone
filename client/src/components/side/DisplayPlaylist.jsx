@@ -1,4 +1,5 @@
 import React from "react";
+import DisplayTracks from "./DisplayTrack";
 
 //Track time display
 // function millisToMinutesAndSeconds(millis) {
@@ -35,7 +36,7 @@ const DisplayPlaylist = (props) => {
             </div>
 
             <div className="list-middle">
-                
+                <DisplayTracks />
             </div>       
         </div>
     )

@@ -6,9 +6,8 @@ import SideMenu from "./SideMenu";
 import Home from "./Home";
 import  Search  from "./Search";
 import Player from "./Player";
-import { getSortedPlaylistTracks, msToTime } from "../../utilityFunctions";
+import {getSortedPlaylistTracks, msToTime } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
-
 
 const Dashboard = ({code}) => {
     const token = useAuth(code);
@@ -35,26 +34,7 @@ const Dashboard = ({code}) => {
     }
     
     const testFunction = async () => {
-      // let verySmall = "0J0osxjpvQiNkRxiF9CWI4"
-      // let small  = "16rriBgSVvBmlMFw9gwYP0"      
-       let big = "0xtweFcEO3q0LtNyahzkZN"  
-      let playlist = await getPlaylist(big);   
-      // let url = playlist.tracks.reduce((curr, next) => {
-      //   if(playlist.tracks.indexOf(curr) < 49) {
-      //     return curr + `%20${next.id}`
-      //   }
-      // },"https://api.spotify.com/v1/me/tracks/contains?ids=")
-      let url = "https://api.spotify.com/v1/me/tracks/contains?ids=" + playlist.tracks[0].id
-      const {data} = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },   
-             
-      });    
-      console.log(data[0])  
-      // setCurrentPlaylist(playlist);
-      // navigate("/playlist")
-              
+      
     }
     
     const getPlaylistNextTracks = async (apiId) => {
@@ -89,23 +69,84 @@ const Dashboard = ({code}) => {
       let duration = msToTime(tracks);
       tracks =  getSortedPlaylistTracks(tracks);
      
-      let allFollowedStatus = []; 
-      for(let track of tracks) {
-        console.log(tracks)
-        let url = "https://api.spotify.com/v1/me/tracks/contains?ids=" + track.id
-        const {isFollowed} = await axios.get(url, {
+      let allTracksId = tracks.map((track) => {
+        return track.id
+      }); 
+      let isTracksFollowed = []
+
+      // for(let track of tracks) {
+      //   let url = "https://api.spotify.com/v1/me/tracks/contains?ids=" + track.id
+      //   const {data} = await axios.get(url, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`
+      //   },   
+             
+      // });    
+      //  allFollowedStatus.push(data[0]) 
+      // } 
+      
+      let fullCycles = Math.floor(tracks.length / 50);
+      let howMuchLeft = Math.floor(tracks.length % 50);
+      let arrMaxStart;
+      let arrMaxEnd;
+      for(let i = 0; i < fullCycles; i++) {
+        let arrEnd = 50 * (i + 1);
+        let arrStart = Math.abs(arrEnd - 50);
+        let arr = allTracksId.slice(arrStart, arrEnd);       
+        let url = "https://api.spotify.com/v1/me/tracks/contains";
+        const {data} = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`
         },   
-             
-        }); 
-        allFollowedStatus.push(isFollowed[0]);
+        params: {
+          ids: arr.toString()
+        }             
+        });    
+        let y = 0;      
+        for(let x = arrStart; x < arrEnd; x++) {           
+            tracks[x] = {...tracks[x], isFollowed: data[y]} 
+            y++;
+        }   
+        if(i == fullCycles-1) {
+          arrMaxStart = arrEnd;
+        }     
       }
+      arrMaxEnd = arrMaxStart + howMuchLeft;
+      let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
 
-      console.log(tracks)
+      let url = "https://api.spotify.com/v1/me/tracks/contains";
+        let isFollowed = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },   
+        params: {
+          ids: arr.toString()
+        }             
+        });
+        isFollowed = isFollowed.data;
 
-      
+        let y = 0;        
+        for(let x = arrMaxStart; x < arrMaxEnd; x++) {
+            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+            y++;
+        }      
 
+
+        console.log({
+          tracks: tracks,
+          name: data.name,
+          description: data.description,
+          followers: data.followers.total,
+          owner: {
+              display_name: data.owner.display_name,
+              urls: data.owner.external_urls
+          },
+          id: data.id,
+          uri: data.uri,
+          img: data.images[0].url,
+          duration: duration,
+          isPublic: data.public
+        })
       return {
         tracks: tracks,
         name: data.name,

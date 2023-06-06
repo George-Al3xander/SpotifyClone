@@ -1,3 +1,6 @@
+import moment from "moment"
+
+
 export function msToTime(tracks) {
     let duration = tracks.reduce((prev,curr) => {                 
         return  prev + curr.track.duration_ms            
@@ -43,6 +46,42 @@ export function getSortedPlaylistTracks(tracks) {
     })
 
     return tracks
+}
+
+
+export function getDateSorted(time) {   
+    let today = new Date();
+    let trackDate = new Date(time);
+    let todayDay = today.getDate();
+    let trackDateDay = trackDate.getDate();
+    let todayYear = today.getFullYear()
+    let trackDateYear = trackDate.getFullYear();
+    let differ = Math.abs(trackDateDay - todayDay);
+    let res;
+    if(trackDateYear == todayYear && differ  <= 31) {
+        if(differ >= 7) {
+          res = "1 week ago"
+        }            
+        else if(differ >= 14) {
+           res = "2 week ago"
+        } 
+        else if(differ >= 21) {
+          res = "3 week ago"
+        } 
+
+        else if(differ >= 14 && differ <= 31) {
+          res = "4 week ago"
+        }
+        else {
+          res = moment(time).fromNow()
+        }
+    }
+
+    else {
+        res = moment(time).format("MMM D, YYYY");
+    }  
+
+    return res
 }
 
 
