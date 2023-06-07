@@ -10,8 +10,7 @@ import DisplayTracks from "./DisplayTrack";
 
 
 const DisplayPlaylist = (props) => {
-    let playlist = props.playlist;
-    console.log(playlist.duration) 
+    let playlist = props.playlist;   
     return(
         <div className="list">
             <div className="list-top">
@@ -37,7 +36,7 @@ const DisplayPlaylist = (props) => {
             </div>
 
             <div className="list-middle">
-                <DisplayTracks />
+                <DisplayTracks playlistUri={props.playlist.uri} clickTrack={props.clickTrack} array={playlist.tracks}/>
             </div>       
         </div>
     )

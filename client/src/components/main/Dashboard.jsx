@@ -12,10 +12,7 @@ import DisplayPlaylist from "../side/DisplayPlaylist";
 const Dashboard = ({code}) => {
     const token = useAuth(code);
     const navigate = useNavigate();
-    const[currentTrack, setCurrentTrack] = useState({
-      name: "",
-      uri: "spotify:track:6gxJg7WCL5xdQCyhm4COF2",
-    })
+    const[currentTrack, setCurrentTrack] = useState("spotify:track:6gxJg7WCL5xdQCyhm4COF2")
     const [curretPlaylist, setCurrentPlaylist] = useState({});
 
 
@@ -34,7 +31,10 @@ const Dashboard = ({code}) => {
     }
     
     const testFunction = async () => {
-      
+      let playlist = await  getPlaylist("16rriBgSVvBmlMFw9gwYP0");
+      console.log(playlist)
+      setCurrentPlaylist(playlist);
+      navigate("/playlist")
     }
     
     const getPlaylistNextTracks = async (apiId) => {
@@ -52,9 +52,11 @@ const Dashboard = ({code}) => {
     }
     
     const getPlaylist = async (id) => { 
+      console.log(1);
       let verySmall = "0J0osxjpvQiNkRxiF9CWI4"
+      //Has track with no description must fix 
       let small  = "16rriBgSVvBmlMFw9gwYP0"      
-      let big = "0xtweFcEO3q0LtNyahzkZN"                  
+      let big = "0xtweFcEO3q0LtNyahzkZN"                       
       const {data} = await axios.get(`https://api.spotify.com/v1/playlists/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -64,58 +66,45 @@ const Dashboard = ({code}) => {
       if(data.tracks.next != null) {        
         tracks = [...tracks].concat(await getPlaylistNextTracks(data.tracks.next));
       }   
-      tracks =  tracks.filter((track) => track.track != null);      
-
-      let duration = msToTime(tracks);
+      
+      let duration =  msToTime(tracks);      
       tracks =  getSortedPlaylistTracks(tracks);
-     
+      
       let allTracksId = tracks.map((track) => {
         return track.id
-      }); 
-      let isTracksFollowed = []
-
-      // for(let track of tracks) {
-      //   let url = "https://api.spotify.com/v1/me/tracks/contains?ids=" + track.id
-      //   const {data} = await axios.get(url, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`
-      //   },   
-             
-      // });    
-      //  allFollowedStatus.push(data[0]) 
-      // } 
-      
-      let fullCycles = Math.floor(tracks.length / 50);
-      let howMuchLeft = Math.floor(tracks.length % 50);
-      let arrMaxStart;
-      let arrMaxEnd;
-      for(let i = 0; i < fullCycles; i++) {
-        let arrEnd = 50 * (i + 1);
-        let arrStart = Math.abs(arrEnd - 50);
-        let arr = allTracksId.slice(arrStart, arrEnd);       
-        let url = "https://api.spotify.com/v1/me/tracks/contains";
-        const {data} = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },   
-        params: {
-          ids: arr.toString()
-        }             
-        });    
-        let y = 0;      
-        for(let x = arrStart; x < arrEnd; x++) {           
-            tracks[x] = {...tracks[x], isFollowed: data[y]} 
-            y++;
-        }   
-        if(i == fullCycles-1) {
-          arrMaxStart = arrEnd;
-        }     
-      }
-      arrMaxEnd = arrMaxStart + howMuchLeft;
-      let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
-
-      let url = "https://api.spotify.com/v1/me/tracks/contains";
-        let isFollowed = await axios.get(url, {
+      });       
+     
+      if(tracks.length > 50) {
+        let fullCycles = Math.floor(tracks.length / 50);
+        let howMuchLeft = Math.floor(tracks.length % 50);
+        let arrMaxStart;
+        let arrMaxEnd;
+        for(let i = 0; i < fullCycles; i++) {
+          let arrEnd = 50 * (i + 1);
+          let arrStart = Math.abs(arrEnd - 50);
+          let arr = allTracksId.slice(arrStart, arrEnd);    
+          console.log(arr)        
+          const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },   
+          params: {
+            ids: arr.toString()
+          }             
+          });    
+          let y = 0;      
+          for(let x = arrStart; x < arrEnd; x++) {           
+              tracks[x] = {...tracks[x], isFollowed: data[y]} 
+              y++;
+          }   
+          if(i == fullCycles-1) {
+            arrMaxStart = arrEnd;
+          }     
+        }
+        arrMaxEnd = arrMaxStart + howMuchLeft;
+        let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
+        
+        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
         headers: {
           Authorization: `Bearer ${token}`
         },   
@@ -124,29 +113,29 @@ const Dashboard = ({code}) => {
         }             
         });
         isFollowed = isFollowed.data;
-
+  
         let y = 0;        
         for(let x = arrMaxStart; x < arrMaxEnd; x++) {
             tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
             y++;
-        }      
+        }   
+      } else {
+        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },   
+        params: {
+          ids: allTracksId.toString()
+        }             
+        });
+        isFollowed = isFollowed.data;
+        let y = 0;        
+        for(let x = 0; x < tracks.length; x++) {
+            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+            y++;
+        }
+      }        
 
-
-        console.log({
-          tracks: tracks,
-          name: data.name,
-          description: data.description,
-          followers: data.followers.total,
-          owner: {
-              display_name: data.owner.display_name,
-              urls: data.owner.external_urls
-          },
-          id: data.id,
-          uri: data.uri,
-          img: data.images[0].url,
-          duration: duration,
-          isPublic: data.public
-        })
       return {
         tracks: tracks,
         name: data.name,
@@ -173,6 +162,14 @@ const Dashboard = ({code}) => {
       });      
       return data
     }
+
+    const clickTrack = (uri) => {
+      console.log(uri)
+     // 
+     if(typeof uri == "string") {
+      setCurrentTrack(uri);
+     }
+    }
     //Madvilliany
     //uri - "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
     //id - "01FCoGEQ3NFWF4fHJzdiax"
@@ -183,7 +180,7 @@ const Dashboard = ({code}) => {
         <div className="content">
           <Routes>
              <Route path="/" element={<Home />}/>
-             <Route path="/playlist" element={<DisplayPlaylist playlist={curretPlaylist}/>}/>
+             <Route path="/playlist" element={<DisplayPlaylist playlist={curretPlaylist} clickTrack={clickTrack}/>}/>
             <Route path="/search" element={<Search />}/>
           </Routes>
         <input type="text" onChange={searchArtist}/>
@@ -192,7 +189,7 @@ const Dashboard = ({code}) => {
         </div>
       </main>
         <div className="player">
-          <Player uri={currentTrack.uri} token={token}/>
+          <Player uri={currentTrack} token={token}/>
         </div>
       </>
     )

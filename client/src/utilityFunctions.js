@@ -24,7 +24,10 @@ export function msToTime(tracks) {
 
 
 export function getSortedPlaylistTracks(tracks) {
-    tracks = tracks.map((song) => {       
+    tracks = tracks.filter((track) => track.track != null && track.track.name != "");     
+           
+
+    tracks = tracks.map((song) => {                 
         return  {
             name: song.track.name,
             uri: song.track.uri, 
@@ -85,7 +88,14 @@ export function getDateSorted(time) {
 }
 
 
+ 
 
+
+  export function displayTrackDuration(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
 
 
 
