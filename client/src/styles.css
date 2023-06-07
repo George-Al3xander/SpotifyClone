@@ -1,3 +1,59 @@
+/*** The new CSS Reset - version 1.2.0 (last updated 23.7.2021) ***/
+
+/* Remove all the styles of the "User-Agent-Stylesheet", except for the 'display' property */
+*:where(:not(iframe, canvas, img, svg, video):not(svg *)) {
+    all: unset;
+    display: revert;
+  }
+  
+  /* Preferred box-sizing value */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  /*
+    Remove list styles (bullets/numbers)
+    in case you use it with normalize.css
+  */
+  ol, ul {
+    list-style: none;
+  }
+  
+  /* For images to not be able to exceed their container */
+  img {
+    display: block;
+    max-width: 100%;
+  }
+  
+  /* Removes spacing between cells in tables */
+  table {
+    border-collapse: collapse;
+  }
+  
+  /* Revert the 'white-space' property for textarea elements on Safari */
+  textarea {
+    white-space: revert;
+  }
+
+  
+:root {
+   --ff-default: 'Montserrat', sans-serif;
+
+   --fs-default: 1rem;
+   --fs-medium: calc(var(--fs-default) * 1.25);
+   --fs-big: calc(var(--fs-default) * 1.5);
+   --fs-large: calc(var(--fs-default) * 2);
+   --fs-xl: calc(var(--fs-default) * 3);
+}
+
+body {
+    font-family:  var(--ff-default);
+
+}
+
+
 .container {
     display: flex;
     flex-direction: row;
@@ -20,3 +76,81 @@
 #root {
     padding-bottom: 10vh;
 }
+
+th {
+    text-align: left;
+}
+
+
+.list-top, .list-top-main-info, .list-top-titles, .track-main-info, .track-artist {
+    display: flex;
+}
+
+.list-top {
+    gap: 2rem;
+}
+
+.list-top-main-info, .track-main-info {
+    gap: .3rem;
+}
+
+.list-top-main-info a {
+    font-weight: 500;
+}
+
+.list-top-main-info h2 span {
+    opacity: .8;
+}
+
+.list-top-titles h1{
+    font-size: var(--fs-xl);
+    font-weight: 700;
+}
+
+.list-top-titles {
+    flex-direction: column;
+    justify-content: center;
+    gap: 20%;
+    font-weight: 500;
+}
+
+.list-btns {
+    padding: 2rem;
+}
+
+table {
+    font-size: var(--fs-default);
+}
+.track-main-info {
+    margin: 0 !important;
+    
+}
+
+
+.track-name h1, .track-name h2 {
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-name h1 {
+    margin-bottom: 1%
+}
+
+
+.track-play-btn h2{    
+    font-size: var(--fs-medium);
+}
+
+.tracks {
+    max-width: 1000px;
+}
+
+
+@media (max-width: 50rem) {
+    .track-extra-info {
+        display: none;
+    }
+}
+

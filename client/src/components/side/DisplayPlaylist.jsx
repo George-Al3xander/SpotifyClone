@@ -15,7 +15,7 @@ const DisplayPlaylist = (props) => {
         <div className="list">
             <div className="list-top">
                 <div className="list-top-img">
-                <img src={playlist.img} alt="" />    
+                <img src={playlist.img[300]} alt="" />    
                 </div>  
                 <div className="list-top-titles">
                     <h2>{playlist.isPublic ? "Public" : "Private"} Playlist</h2>
@@ -23,8 +23,8 @@ const DisplayPlaylist = (props) => {
                     {playlist.description != "" ? <h2 className="description">{playlist.description}</h2> : null}
                     <div className="list-top-main-info">
                         <h2><a href={playlist.owner.urls.spotify}>{playlist.owner.display_name}</a></h2>
-                        {playlist.followers > 0 ? <h2>{playlist.followers} likes</h2> : null}
-                        <h2>{playlist.tracks.length} songs,</h2>
+                        {playlist.followers > 0 ? <h2> · {playlist.followers} likes</h2> : null}
+                        <h2> · {playlist.tracks.length} songs,</h2>
                         <h2><span>{playlist.duration}</span></h2>
                     </div>
                 </div>              

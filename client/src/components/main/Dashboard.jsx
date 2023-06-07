@@ -12,8 +12,13 @@ import DisplayPlaylist from "../side/DisplayPlaylist";
 const Dashboard = ({code}) => {
     const token = useAuth(code);
     const navigate = useNavigate();
-    const[currentTrack, setCurrentTrack] = useState("spotify:track:6gxJg7WCL5xdQCyhm4COF2")
+    const[currentTrack, setCurrentTrack] = useState(
+     // [
+        "spotify:track:6gxJg7WCL5xdQCyhm4COF2",//"spotify:track:6wVnQMRXd1z2iPEo24f9db"
+     // ]
+    )
     const [curretPlaylist, setCurrentPlaylist] = useState({});
+    const [clickStatus, setClickStatus] = useState(false);
 
 
     const  searchArtist =  async (e) => {
@@ -53,8 +58,7 @@ const Dashboard = ({code}) => {
     
     const getPlaylist = async (id) => { 
       console.log(1);
-      let verySmall = "0J0osxjpvQiNkRxiF9CWI4"
-      //Has track with no description must fix 
+      let verySmall = "0J0osxjpvQiNkRxiF9CWI4"      
       let small  = "16rriBgSVvBmlMFw9gwYP0"      
       let big = "0xtweFcEO3q0LtNyahzkZN"                       
       const {data} = await axios.get(`https://api.spotify.com/v1/playlists/${id}`, {
@@ -147,7 +151,12 @@ const Dashboard = ({code}) => {
         },
         id: data.id,
         uri: data.uri,
-        img: data.images[0].url,
+        img: {
+          640: data.images[0].url,
+          300: data.images[1].url,
+          64: data.images[2].url,
+        },
+        
         duration: duration,
         isPublic: data.public
       }
@@ -163,9 +172,18 @@ const Dashboard = ({code}) => {
       return data
     }
 
-    const clickTrack = (uri) => {
-      console.log(uri)
-     // 
+    const clickTrack = (uri) => { 
+      if(currentTrack == uri) {
+        if(clickStatus == false) {
+           setClickStatus(true)
+        }
+        else {   
+         setClickStatus(false)
+        }        
+      } else {
+        setClickStatus(true)
+      }
+      
      if(typeof uri == "string") {
       setCurrentTrack(uri);
      }
@@ -189,7 +207,7 @@ const Dashboard = ({code}) => {
         </div>
       </main>
         <div className="player">
-          <Player uri={currentTrack} token={token}/>
+          <Player uri={currentTrack} clickStatus={clickStatus} token={token}/>
         </div>
       </>
     )
