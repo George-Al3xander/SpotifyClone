@@ -11,13 +11,7 @@ const DisplayTracks = (props) => {
         itemsRef.current = itemsRef.current.slice(0, props.array.length);               
     },[props.array])
 
-
-    const test = () => {
-        console.log(1)
-    }
-    
-    
-    return (
+        return (
         <table className="tracks">
             <thead>
                 <tr>
@@ -31,15 +25,12 @@ const DisplayTracks = (props) => {
             </thead>
 
             <tbody>
-            {props.array.map((track, num) => {                
+            {props.array.map((track, num) => {                 
                 return <tr 
                     key={num} 
                     ref={el => itemsRef.current[num] = el} 
                     onDoubleClick={()=> {
-                        props.clickTrack(
-                            itemsRef.current[num].id
-                                //props.playlistUri
-                            );
+                        props.clickTrack(itemsRef.current[num].id);
                     }}
                     onMouseEnter={() => { 
                         let tempArray = [...isHovered];
@@ -52,20 +43,23 @@ const DisplayTracks = (props) => {
                         tempArray[num].status = false;
                         setIsHovered(tempArray);
                     }}
-                    onClick={props.clickTrack} id={track.uri} className="track" >
+                    id={track.uri} className="track" >
 
-                            <td className="track-play-btn"><h2>
+                            <td className="track-play-btn">
+                                {isHovered[num].status == false ? 
+                                 
+                                <h2>{num + 1}</h2>
                                 
-                                {isHovered[num].status == false ? (num + 1) : <svg 
-                                
-                                onClick={() => {
-                                    props.clickTrack(
-                                    itemsRef.current[num].id
-                                        //props.playlistUri
-                                        );
+                                :
+                                                                
+                                <svg
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    props.clickTrack(itemsRef.current[num].id);
                                 }}  xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/></svg> }
-                            </h2></td>
-                            {/* style={{textOverflow: "ellipsis", whiteSpace: "nowrap"}} */}
+                            
+                            </td>    
+
                             <td className="track-main-info">
                                 <div>
                                     <img src={track.img[64]} alt="Album cover" />

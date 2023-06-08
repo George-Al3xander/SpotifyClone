@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import { Route, Routes , useNavigate} from "react-router-dom";
 import useAuth from "../useAuth";
@@ -8,40 +8,61 @@ import  Search  from "./Search";
 import Player from "./Player";
 import {getSortedPlaylistTracks, msToTime } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
+import { spotifyApiClient, newReleases, addToQueue, recentlyPlayedTracks } from '@ekwoka/spotify-api';
+import { spotifyApi } from "react-spotify-web-playback";
+
 
 const Dashboard = ({code}) => {
-    const token = useAuth(code);
-    const navigate = useNavigate();
-    const[currentTrack, setCurrentTrack] = useState(
-     // [
-        "spotify:track:6gxJg7WCL5xdQCyhm4COF2",//"spotify:track:6wVnQMRXd1z2iPEo24f9db"
-     // ]
-    )
-    const [curretPlaylist, setCurrentPlaylist] = useState({});
-    const [clickStatus, setClickStatus] = useState(false);
+  const token =  useAuth(code);  
+  const navigate = useNavigate();
+  const[currentTrack, setCurrentTrack] = useState("spotify:track:6gxJg7WCL5xdQCyhm4COF2")
+  const [curretPlaylist, setCurrentPlaylist] = useState({});
+  const [clickStatus, setClickStatus] = useState(false);
+  const [empty, setEmpty] = useState("")
+  const [currentDevice, setCurrentDevice] = useState("");
+  
+  // useEffect(async () => {
+  //   setClickStatus(true);
+  //   let {devices} = await spotifyApi.getDevices(token);
+  //    let device = await devices.filter((item) => {
+  //     return item.is_active == true
+  //    })[0];
+  //     setCurrentDevice(await device.id);
+  //   setTimeout(() => {
+  //     setClickStatus(false);
+  //   },10)
+  // }, [empty])
 
-
-    const  searchArtist =  async (e) => {
-        let key = e.target.value;
-    const {data} = await axios.get("https://api.spotify.com/v1/search", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      params: {
-        q: key,
-        type: "track"
-      }
-    })    
-    console.log(data)
-    }
+  const testFunction = async () => {
+    //const client =  spotifyApiClient(token);
+    //await client(addToQueue("spotify:track:3RPLr5siFwdjQbueFakIQB"))
+    // console.log(await client(recentlyPlayedTracks()));
+    //https://api.spotify.com/v1/me/player/devices
+    console.log(currentDevice)
     
-    const testFunction = async () => {
-      let playlist = await  getPlaylist("16rriBgSVvBmlMFw9gwYP0");
-      console.log(playlist)
-      setCurrentPlaylist(playlist);
-      navigate("/playlist")
-    }
+    spotifyApi.play(token, {
+      context_uri: "spotify:album:01FCoGEQ3NFWF4fHJzdiax",
+      deviceId: currentDevice,
+      uris: "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
+    })
+    spotifyApi.shuffle(token,true, currentDevice);
     
+  }
+  
+  const  searchArtist =  async (e) => {
+      let key = e.target.value;
+  const {data} = await axios.get("https://api.spotify.com/v1/search", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    params: {
+      q: key,
+      type: "track"
+    }
+  })    
+  console.log(data)
+  }
+  
     const getPlaylistNextTracks = async (apiId) => {
       const {data} = await axios.get(apiId, {
         headers: {
@@ -173,6 +194,7 @@ const Dashboard = ({code}) => {
     }
 
     const clickTrack = (uri) => { 
+      console.log(currentTrack == uri);
       if(currentTrack == uri) {
         if(clickStatus == false) {
            setClickStatus(true)
@@ -198,7 +220,7 @@ const Dashboard = ({code}) => {
         <div className="content">
           <Routes>
              <Route path="/" element={<Home />}/>
-             <Route path="/playlist" element={<DisplayPlaylist playlist={curretPlaylist} clickTrack={clickTrack}/>}/>
+             <Route path="/playlist" currentTrack={currentTrack} element={<DisplayPlaylist playlist={curretPlaylist} clickTrack={clickTrack}/>}/>
             <Route path="/search" element={<Search />}/>
           </Routes>
         <input type="text" onChange={searchArtist}/>
@@ -207,7 +229,7 @@ const Dashboard = ({code}) => {
         </div>
       </main>
         <div className="player">
-          <Player uri={currentTrack} clickStatus={clickStatus} token={token}/>
+          <Player setCurrentDevice={setCurrentDevice} uri={currentTrack} clickStatus={clickStatus} token={token}/>
         </div>
       </>
     )

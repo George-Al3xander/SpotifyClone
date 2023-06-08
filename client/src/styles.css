@@ -109,7 +109,7 @@ th {
 
 .list-top-titles {
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 20%;
     font-weight: 500;
 }
@@ -142,6 +142,18 @@ table {
 .track-play-btn h2{    
     font-size: var(--fs-medium);
 }
+
+.track-play-btn {
+   padding: .5rem;
+   text-align: center;
+}
+
+/* tbody td:not(.track-main-info) > *{
+    
+}
+
+.track-play-btn > * {
+} */
 
 .tracks {
     max-width: 1000px;

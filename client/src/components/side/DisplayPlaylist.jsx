@@ -36,7 +36,7 @@ const DisplayPlaylist = (props) => {
             </div>
 
             <div className="list-middle">
-                <DisplayTracks playlistUri={props.playlist.uri} clickTrack={props.clickTrack} array={playlist.tracks}/>
+                <DisplayTracks currentTrack={props.currentTrack} playlistUri={props.playlist.uri} clickTrack={props.clickTrack} array={playlist.tracks}/>
             </div>       
         </div>
     )
