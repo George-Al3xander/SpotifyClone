@@ -20,34 +20,28 @@ const Dashboard = ({code}) => {
   const [clickStatus, setClickStatus] = useState(false);
   const [empty, setEmpty] = useState("")
   const [currentDevice, setCurrentDevice] = useState("");
-  
-  // useEffect(async () => {
-  //   setClickStatus(true);
-  //   let {devices} = await spotifyApi.getDevices(token);
-  //    let device = await devices.filter((item) => {
-  //     return item.is_active == true
-  //    })[0];
-  //     setCurrentDevice(await device.id);
-  //   setTimeout(() => {
-  //     setClickStatus(false);
-  //   },10)
-  // }, [empty])
+  const [shuffleStatus, setShuffleStatus] = useState(false);
+  const repeatTypes = ['off', 'context' , 'track' ]
+  const [repeatStatus, setRepeatStatus] = useState(0);
+ 
 
-  const testFunction = async () => {
-    //const client =  spotifyApiClient(token);
-    //await client(addToQueue("spotify:track:3RPLr5siFwdjQbueFakIQB"))
-    // console.log(await client(recentlyPlayedTracks()));
-    //https://api.spotify.com/v1/me/player/devices
-    console.log(currentDevice)
+  const testFunction = async () => {    
+    //console.log(currentDevice);
     
     spotifyApi.play(token, {
       context_uri: "spotify:album:01FCoGEQ3NFWF4fHJzdiax",
       deviceId: currentDevice,
       uris: "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
     })
-    spotifyApi.shuffle(token,true, currentDevice);
+    
+    //console.log(await spotifyApi.getPlaybackState(token));
     
   }
+
+  useEffect(() => {
+   // const {devices} = spotifyApi.getDevices(token);
+    //console.log(devices)
+  }, [currentDevice])
   
   const  searchArtist =  async (e) => {
       let key = e.target.value;
@@ -210,6 +204,39 @@ const Dashboard = ({code}) => {
       setCurrentTrack(uri);
      }
     }
+
+    const shuffle = () => {
+      if(shuffleStatus == false) {
+        spotifyApi.shuffle(token,true, currentDevice);
+        setShuffleStatus(true);
+        }
+      else {
+        spotifyApi.shuffle(token,true, currentDevice);
+        setShuffleStatus(false);       
+      }
+    }
+  
+    const repeat = () => {
+      if(repeatStatus + 1 > 2) {
+        setRepeatStatus(0);
+      } else {
+        setRepeatStatus((prev) => prev + 1)
+      }
+    }
+    useEffect(()=> {
+      const doThis = async() => {
+        await spotifyApi.repeat(token,repeatTypes[repeatStatus],currentDevice);
+      }
+      doThis();
+    },[repeatStatus])
+
+
+    const getQueue = async () => {
+      console.log(await spotifyApi.getQueue(token))
+    }
+    
+
+    
     //Madvilliany
     //uri - "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
     //id - "01FCoGEQ3NFWF4fHJzdiax"
@@ -226,10 +253,21 @@ const Dashboard = ({code}) => {
         <input type="text" onChange={searchArtist}/>
         <button onClick={getPlaylist}>Get playlist</button>
         <button onClick={testFunction}>Test btn</button>
+        <button onClick={getQueue}>Get Q</button>
         </div>
       </main>
         <div className="player">
-          <Player setCurrentDevice={setCurrentDevice} uri={currentTrack} clickStatus={clickStatus} token={token}/>
+          <Player 
+            shuffle={shuffle} 
+            shuffleStatus={shuffleStatus} 
+            repeat={repeat}
+            repeatStatus={repeatStatus}
+            setCurrentDevice={setCurrentDevice} 
+            uri={currentTrack} 
+            clickStatus={clickStatus} 
+            token={token}           
+            setRepeatStatus={setRepeatStatus}
+            />
         </div>
       </>
     )
