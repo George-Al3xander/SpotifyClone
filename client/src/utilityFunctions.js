@@ -1,9 +1,9 @@
 import moment from "moment"
-
+import axios from "axios";
 
 export function msToTime(tracks) {
     let duration = tracks.reduce((prev,curr) => {                 
-        return  prev + curr.track.duration_ms            
+        return  prev + curr.duration            
       }, 0);        
               
       let seconds = Math.floor((duration / 1000) % 60);
@@ -19,6 +19,7 @@ export function msToTime(tracks) {
           return `${hours} hr ${minutes} min`          
       } 
 }
+
 
 
 
@@ -47,6 +48,167 @@ export function getSortedPlaylistTracks(tracks) {
             date: song.added_at
         }
     })
+
+    return tracks
+}
+
+
+
+export async function getPlaylistTracks(token,tracksStart) {
+  //tracksStart = data.tracks
+  let tracks =  tracksStart.items;  
+  let next = tracksStart.next;
+      if(next != null) {        
+        tracks = [...tracks].concat(await getPlaylistNextTracks(next));
+      }   
+      
+      tracks = await getSortedPlaylistTracks(tracks);
+      
+      let allTracksId = tracks.map((track) => {
+        return track.id
+      });       
+     
+      if(tracks.length > 50) {
+        let fullCycles = Math.floor(tracks.length / 50);
+        let howMuchLeft = Math.floor(tracks.length % 50);
+        let arrMaxStart;
+        let arrMaxEnd;
+        for(let i = 0; i < fullCycles; i++) {
+          let arrEnd = 50 * (i + 1);
+          let arrStart = Math.abs(arrEnd - 50);
+          let arr = allTracksId.slice(arrStart, arrEnd);    
+          console.log(arr)        
+          const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },   
+          params: {
+            ids: arr.toString()
+          }             
+          });    
+          let y = 0;      
+          for(let x = arrStart; x < arrEnd; x++) {           
+              tracks[x] = {...tracks[x], isFollowed: data[y]} 
+              y++;
+          }   
+          if(i == fullCycles-1) {
+            arrMaxStart = arrEnd;
+          }     
+        }
+        arrMaxEnd = arrMaxStart + howMuchLeft;
+        let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
+        
+        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },   
+        params: {
+          ids: arr.toString()
+        }             
+        });
+        isFollowed = isFollowed.data;
+  
+        let y = 0;        
+        for(let x = arrMaxStart; x < arrMaxEnd; x++) {
+            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+            y++;
+        }   
+      } else {
+        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },   
+        params: {
+          ids: allTracksId.toString()
+        }             
+        });
+        isFollowed = isFollowed.data;
+        let y = 0;        
+        for(let x = 0; x < tracks.length; x++) {
+            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+            y++;
+        }
+      }  
+
+      return tracks
+}
+
+export async function getAlbumTracks(token, tracks) {
+    tracks =  tracks.map((track) => {
+      return {
+        name: track.name,
+        artists: track.artists,
+        duration: track.duration_ms,
+        isExplicit: track.explicit,
+        id: track.id,
+        uri: track.uri
+        }
+    });
+    let allTracksId = tracks.map((track) => {
+      return track.id
+    }); 
+
+    if(tracks.length > 50) {
+      let fullCycles = Math.floor(tracks.length / 50);
+      let howMuchLeft = Math.floor(tracks.length % 50);
+      let arrMaxStart;
+      let arrMaxEnd;
+      for(let i = 0; i < fullCycles; i++) {
+        let arrEnd = 50 * (i + 1);
+        let arrStart = Math.abs(arrEnd - 50);
+        let arr = allTracksId.slice(arrStart, arrEnd);    
+        console.log(arr)        
+        const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },   
+        params: {
+          ids: arr.toString()
+        }             
+        });    
+        let y = 0;      
+        for(let x = arrStart; x < arrEnd; x++) {           
+            tracks[x] = {...tracks[x], isFollowed: data[y]} 
+            y++;
+        }   
+        if(i == fullCycles-1) {
+          arrMaxStart = arrEnd;
+        }     
+      }
+      arrMaxEnd = arrMaxStart + howMuchLeft;
+      let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
+      
+      let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },   
+      params: {
+        ids: arr.toString()
+      }             
+      });
+      isFollowed = isFollowed.data;
+
+      let y = 0;        
+      for(let x = arrMaxStart; x < arrMaxEnd; x++) {
+          tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+          y++;
+      }   
+    } else {
+      let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },   
+      params: {
+        ids: allTracksId.toString()
+      }             
+      });
+      isFollowed = isFollowed.data;
+      let y = 0;        
+      for(let x = 0; x < tracks.length; x++) {
+          tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+          y++;
+      }
+    }  
 
     return tracks
 }
@@ -87,15 +249,11 @@ export function getDateSorted(time) {
     return res
 }
 
-
- 
-
-
-  export function displayTrackDuration(millis) {
-    var minutes = Math.floor(millis / 60000);
-    var seconds = ((millis % 60000) / 1000).toFixed(0);
-    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-  }
+export function displayTrackDuration(millis) {
+  var minutes = Math.floor(millis / 60000);
+  var seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+}
 
 
 

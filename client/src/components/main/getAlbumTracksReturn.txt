@@ -1,0 +1,8 @@
+return {
+    name: track.name,
+    artists: track.artists,
+    duration: track.duration_ms,
+    isExplicit: track.explicit,
+    id: track.id,
+    uri: track.uri
+}

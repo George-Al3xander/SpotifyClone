@@ -1,0 +1,14 @@
+return {
+    artists: data.artists,
+    id: data.id,
+    uri: data.uri,
+        img: {
+          640: data.images[0].url,
+          300: data.images[1].url,
+          64: data.images[2].url,
+    },
+    duration: duration,
+    tracks: tracks,
+    name: data.name,
+    date: data.release_date
+}

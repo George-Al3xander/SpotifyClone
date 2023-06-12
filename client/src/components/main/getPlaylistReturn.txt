@@ -8,7 +8,4 @@
     },
     id: data.id,
     uri: data.uri,
-    
-
-
-    }
+ }
