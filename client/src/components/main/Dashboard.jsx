@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from 'axios';
 import { Route, Routes , useNavigate} from "react-router-dom";
 import useAuth from "../useAuth";
@@ -6,7 +6,7 @@ import SideMenu from "./SideMenu";
 import Home from "./Home";
 import  Search  from "./Search";
 import Player from "./Player";
-import {getSortedPlaylistTracks, getPlaylistTracks, msToTime, getAlbumTracks } from "../../utilityFunctions";
+import {getSortedPlaylistTracks, getPlaylistTracks,getNextItems, msToTime, getAlbumTracks } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
 
 import { spotifyApi } from "react-spotify-web-playback";
@@ -27,7 +27,7 @@ const Dashboard = ({code}) => {
   const repeatTypes = ['off', 'context' , 'track' ]
   const [repeatStatus, setRepeatStatus] = useState(0);
   const [currentUser, setCurrentUser] = useState({})
-  
+  const playerItem = useRef()
  
 
   const getUser = async () => {
@@ -42,30 +42,29 @@ const Dashboard = ({code}) => {
   
 
   const testFunction = async () => { 
-     await getSavedTracks();
-       
+    //Basketball and download playlist have problems
+
+    //All good with getPlaylist function
+    let basketball = "0xtweFcEO3q0LtNyahzkZN";
+
+    //Getting 400 error with getPlaylist function, with follow contain check
+    let download = "3CLLxetdnYCrLwNoDiyV1G"
+
+      console.log(await getPlaylist(download));    
   }
 
-
-
-  const displayAlbum = async () => {
-    let album = await getAlbum("01FCoGEQ3NFWF4fHJzdiax");
+  const displayAlbum = async (id) => {
+    let album = await getAlbum(id);
     setCurrentPlay(album);
     navigate("/album"); 
   }
 
-  const displayPlaylist = async () => {
-    let playlist = await getPlaylist("0J0osxjpvQiNkRxiF9CWI4");
+  const displayPlaylist = async (id) => {    
+    let playlist = await getPlaylist(id);
     setCurrentPlay(playlist);
     navigate("/playlist"); 
   }
 
-
-  useEffect(() => {
-    //const {devices} = spotifyApi.getDevices(token);
-    //console.log(devices)
-  }, [currentDevice])
-  
   const  searchArtist =  async (e) => {
       let key = e.target.value;
   const {data} = await axios.get("https://api.spotify.com/v1/search", {
@@ -80,20 +79,8 @@ const Dashboard = ({code}) => {
   console.log(data)
   }
   
-    const getNextItems = async (apiId) => {
-      const {data} = await axios.get(apiId, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },        
-      })
-           
-      if(data.next != null) {         
-          return  data.items.concat(await getNextItems(data.next));         
-      }  else {
-        return  data.items
-      }      
-    }
-    
+   
+   
     const getPlaylist = async (id) => {       
       let verySmall = "0J0osxjpvQiNkRxiF9CWI4"      
       let small  = "16rriBgSVvBmlMFw9gwYP0"      
@@ -103,8 +90,7 @@ const Dashboard = ({code}) => {
           Authorization: `Bearer ${token}`
         },        
       }); 
-      let tracks = await  getPlaylistTracks(token,data.tracks);
-      // let followStatus = await axios.get(`https://api.spotify.com/v1/playlists/${data.id}/followers/contains?ids=jmperezperez%2Cthelinmichael%2Cwizzler`)
+      let tracks = await  getPlaylistTracks(token,data.tracks);      
       let duration = msToTime(tracks);     
       return {
         tracks: tracks,
@@ -118,11 +104,7 @@ const Dashboard = ({code}) => {
         },
         id: data.id,
         uri: data.uri,
-        img: {
-          640: data.images[0].url,
-          300: data.images[1].url,
-          64: data.images[2].url,
-        },
+        img: data.images.length > 1 ? data.images[1].url : data.images[0].url,
         
         duration: duration,
         isPublic: data.public
@@ -236,12 +218,11 @@ const Dashboard = ({code}) => {
             token={token} 
             playlistClick={displayPlaylist} 
             albumClick={displayAlbum}
-            getNextItems={getNextItems}
             />
         <div className="content">
           <Routes>
              <Route path="/" element={<Home />}/>
-             <Route path="/playlist" currentTrack={currentPlayUri} element={<DisplayPlaylist clickPlay={clickListPlay} currentTrack={currentPlay} playlist={currentPlay} clickTrack={clickTrack}/>}/>
+             <Route path="/playlist"  element={<DisplayPlaylist clickPlay={clickListPlay} currentTrack={currentPlayUri}  playlist={currentPlay} clickTrack={clickTrack}/>}/>
              <Route path="/album" element={<DisplayAlbum currentTrack={currentTrack} album={currentPlay} clickPlay={clickListPlay} clickTrack={clickTrack}/>}/>
             <Route path="/search" element={<Search />}/>
           </Routes>

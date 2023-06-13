@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import DisplaySideMenuContent from "../side/DisplaySideMenuContent";
+import { getNextItems } from "../../utilityFunctions";
 /* <h1>SideMenu</h1>
 <Link to="/">Home</Link>
 <h1 onClick={albumClick}>Get album</h1>
 <h1 onClick={playlistClick}>Get playlist</h1> */
 
-const SideMenu = ({playlistClick, albumClick, token,getNextItems}) => {
+const SideMenu = ({playlistClick, albumClick, token}) => {
     
     const getPlaylists = async () => {
         const {data} = await axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -17,7 +18,7 @@ const SideMenu = ({playlistClick, albumClick, token,getNextItems}) => {
         })
         let playlist = data.items;
        if(data.next != null) {
-           playlist =  playlist.concat(await getNextItems(data.next));
+           playlist =  playlist.concat(await getNextItems(token, data.next));
        }
        playlist = playlist.filter((list) => list.tracks.total > 0)       
        playlist = playlist.map((list) => {
@@ -34,10 +35,41 @@ const SideMenu = ({playlistClick, albumClick, token,getNextItems}) => {
         return playlist
     }
 
-    const clickPlaylist = async () => {
+    const getAlbums = async () => {
+        const {data} = await axios.get('https://api.spotify.com/v1/me/albums?limit=50', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+       let album = data.items;
+       if(data.next != null) {
+           album =  album.concat(await getNextItems(token, data.next));
+       }
+        album = album.filter((item) => item.album.name != "")
+        album = album.map((list) => {
+            return  {
+                name: list.album.name,     
+                owner: list.album.artists[0].name,                    
+                img: list.album.images.length > 1 ?  list.album.images[2].url
+                   : list.album.images[0].url,                
+                id: list.album.id,
+                uri: list.album.uri,
+             }
+        });
+        
+        return album
+    }
+
+    const clickPlaylistNavBtn = async () => {
         setCurrentDisplay(await getPlaylists());
         setIsClicked(true);
         setCurrentDisplayType("playlist")
+    }
+
+    const clickAlbumNavBtn = async () => {
+        setCurrentDisplay(await getAlbums());
+        setIsClicked(true);
+        setCurrentDisplayType("album")
     }
 
 
@@ -54,16 +86,14 @@ const SideMenu = ({playlistClick, albumClick, token,getNextItems}) => {
             <div className="side-menu-content">                
                     <h1>Your Library</h1>    
                     <ul className="side-menu-content-nav">
-                        <li onClick={clickPlaylist}>Playlist</li>
+                        <li onClick={clickPlaylistNavBtn}>Playlist</li>
                         <li>Podcast & Shows</li>
-                        <li>Albums</li>
+                        <li onClick={clickAlbumNavBtn}>Albums</li>
                         <li>Artists</li>
                     </ul>                       
                     <div><input type="text" /></div>
 
-                    {isClicked == false ? null : <DisplaySideMenuContent type={currentDisplayType} array={currentDisplay} clickItem={(e) => {
-                        console.log(1)
-                    }}/>}
+                    {isClicked == false ? null : <DisplaySideMenuContent functions={[playlistClick,albumClick]} type={currentDisplayType} array={currentDisplay}/>}
                     {/* / Component/ */}
                     
             </div>

@@ -1,15 +1,23 @@
 import React from "react";
 
-const DisplaySideMenuContent = ({type, array, clickItem}) => {
-
+const DisplaySideMenuContent = ({type, array, clickItem, functions}) => {
+    let func;
+    if(type == "playlist") {
+        func = functions[0]
+    }
+    else if(type == "album") {
+        func = functions[1]
+    }
     return(
     <ul className="side-menu-content-results">
         {array.map((item) => {
-            return <li key={item.id} onClick={clickItem} id={item.id}>
-                {type == "artist" ? <img style={{maxWidth: "50px", borderRadius: "50%"}} src={item.img} alt="" /> : <img style={{maxWidth: "32px"}} src={item.img} alt="" />}
+            return <li key={item.id} onClick={async () => {
+                await func(item.id);
+            }} id={item.id}>
+                {type == "artist" ? <img style={{borderRadius: "50%"}} src={item.img} alt="" /> : <img src={item.img} alt="" />}
                 <div>
-                    <h1>{item.name}</h1>
-                    {type == "artist" ? <h2>{type}</h2> : <h2>{type} · {item.owner}</h2>}
+                    <h2>{item.name}</h2>
+                    {type == "artist" ? <h3>{type}</h3> : <h3>{item.owner}</h3>}
                 </div>
             </li>
         })}

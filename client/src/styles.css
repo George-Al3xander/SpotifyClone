@@ -43,6 +43,7 @@
 
    --fs-default: 1rem;
    --fs-medium: calc(var(--fs-default) * 1.25);
+   --fs-small: calc(var(--fs-default) * .85);
    --fs-big: calc(var(--fs-default) * 1.5);
    --fs-large: calc(var(--fs-default) * 2);
    --fs-xl: calc(var(--fs-default) * 3);
@@ -54,7 +55,7 @@
 
 body {
     font-family:  var(--ff-default);
-    padding-block: 2rem;
+    padding-top: 2rem;
     background-color: black;
     color: white;
 }
@@ -67,7 +68,7 @@ body svg {
 .container {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 
@@ -76,6 +77,11 @@ body svg {
     bottom: 0;
     margin-inline: auto;
     width: 100%;
+}
+
+.content {
+    max-height: 85vh !important;
+    overflow: scroll;    
 }
 
 .side-menu {
@@ -102,6 +108,10 @@ th {
 
 .list-top {
     gap: 2rem;
+}
+
+.list-top img{
+    max-width: 12.5rem;
 }
 
 .list-top-main-info, .track-main-info {
@@ -139,17 +149,20 @@ table {
     margin: 0 !important;
     
 }
+.track {
+    font-size: var(--fs-small);
+}
 
 tr h1, tr h2, tr a:last-child{
     white-space: nowrap;
-    max-width: 20ch;
+    max-width: 15ch;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 td {
     vertical-align: middle;
-    margin-bottom: 1rem;
+    margin-bottom: 1%;
 }
 
 tr h2 {
@@ -157,8 +170,8 @@ tr h2 {
 }
 
 .track-play-btn {
-    font-size: var(--fs-medium);
-    padding: 1rem;
+    font-size: var(--fs-default);
+    padding-right:1rem;
     text-align: center;
 }
 
@@ -175,13 +188,12 @@ thead {
 }
 
 th ,td {   
-    padding: 1rem;
+    padding: .5rem;
 }
 
 .track-main-info img {
-    min-width: 64px;
+    max-width: 2.5rem;
 }
-
 
 tbody:before {
     content:"@";
@@ -190,8 +202,7 @@ tbody:before {
     text-indent:-99999px;
 }
 .tracks {
-    width: 100%;
-   
+    width: 100%;   
 }
 
 .track-album-name h2 {
@@ -203,10 +214,13 @@ tbody:before {
     text-decoration: underline;
 }
 
-
 .track-artist svg {
-    min-width: 20px;
+    min-width: 1.25rem;
 }
+
+
+
+
 
 .side-menu-top-nav > * {
     display: flex;
@@ -214,6 +228,11 @@ tbody:before {
     gap: .5rem;
     margin-bottom: 1rem;
 
+}
+
+.side-menu {
+    position: sticky;
+    top: 100%
 }
 
 .side-menu-content h1 {
@@ -240,18 +259,58 @@ tbody:before {
     opacity: 1;
 }
 
-.side-menu-content, .side-menu-top-nav {
+
+
+.side-menu-content , .side-menu-top-nav, .content {
+    overflow-x: hidden;
     background-color: var(--clr-bg);
-    border-radius: 1rem;
+    border-radius: 1rem 1rem 0 0;
     padding: 1rem 2rem;
 }
 
 .side-menu-content-results {
-    max-height: 20rem;
+    max-height: 49vh;
     overflow: scroll;
+    
 }
 
+.side-menu-content-results li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    width: 95%;
+    padding: .5rem;
+    border-radius: .5rem;
+    max-width: 31.25rem;
+    
+    
 
+}
+
+.side-menu-content-results li img {
+    border-radius: 10%;
+    width: 18%;
+}
+
+.side-menu-content-results li:hover {
+    cursor: pointer;
+    background-color: var(--clr-bg-light);
+}
+
+.side-menu-content-results h2, .side-menu-content-results h3 {
+    
+    max-width: 12.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-menu-content-results h3 {
+    opacity: .7;  
+    font-size: var(--fs-small);
+}
 
 @media (max-width: 50rem) {
     .track-extra-info {

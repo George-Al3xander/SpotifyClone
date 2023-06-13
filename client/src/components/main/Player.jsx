@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useRef } from "react";
 import  SpotifyPlayer from "react-spotify-web-playback"
 import ShuffleBtn from "../side/ShuffleBtn";
 import RepeatBtn from "../side/RepeatBtn";
 const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStatus, repeatStatus, repeat, setRepeatStatus, setCurrentTrack,setClickStatus}) => {
-  const repeatTypes = ['off', 'context' , 'track' ]
-
+  const repeatTypes = ['off', 'context' , 'track' ] 
+  const item = useRef();  
     return <SpotifyPlayer 
-    
+    ref={item} 
     play={clickStatus}     
     hideAttribution={true}
     token={token}  
@@ -19,7 +19,8 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
             setRepeatStatus(repeatTypes.indexOf(repeatState))            
         }
         setClickStatus(state.isActive);
-        setCurrentTrack(state.track.uri);
+        setCurrentTrack(state.track.uri);       
+        document.body.style.paddingBottom = `${item.current.ref.current.offsetHeight} px`;        
     }}  
     uris={uri} 
     components={{

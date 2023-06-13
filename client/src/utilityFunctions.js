@@ -20,25 +20,15 @@ export function msToTime(tracks) {
       } 
 }
 
-
-
-
-
 export function getSortedPlaylistTracks(tracks) {
-    tracks = tracks.filter((track) => track.track != null && track.track.name != "");     
-           
-
+    tracks = tracks.filter((track) => track.track != null && track.track.name != "");   
     tracks = tracks.map((song) => {                 
         return  {
             name: song.track.name,
             uri: song.track.uri, 
             id: song.track.id, 
             isExplicit: song.track.explicit, 
-            img: {
-                640: song.track.album.images[0].url,
-                300: song.track.album.images[1].url,
-                64: song.track.album.images[2].url,
-            },
+            img: song.track.album.images.length > 1 ? song.track.album.images[2].url : song.track.album.images[0].url,
             album: {
                 name: song.track.album.name,
                 uri: song.track.album.uri,
@@ -52,53 +42,39 @@ export function getSortedPlaylistTracks(tracks) {
     return tracks
 }
 
+export async function getNextItems (token, apiId) {
+  const {data} = await axios.get(apiId, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },        
+  })
+       
+  if(data.next != null) {         
+      return  data.items.concat(await getNextItems(token, data.next));         
+  }  else {
+      return  data.items
+  }      
+}
 
+export async function getFollowedStatus(token, tracks) {
+  let res = [];
+  let allTracksId = tracks.map((track) => {
+    return track.id
+  });       
+ 
+  if(tracks.length > 50) {
 
-export async function getPlaylistTracks(token,tracksStart) {
-  //tracksStart = data.tracks
-  let tracks =  tracksStart.items;  
-  let next = tracksStart.next;
-      if(next != null) {        
-        tracks = [...tracks].concat(await getPlaylistNextTracks(next));
-      }   
-      
-      tracks = await getSortedPlaylistTracks(tracks);
-      
-      let allTracksId = tracks.map((track) => {
-        return track.id
-      });       
-     
-      if(tracks.length > 50) {
-        let fullCycles = Math.floor(tracks.length / 50);
-        let howMuchLeft = Math.floor(tracks.length % 50);
-        let arrMaxStart;
-        let arrMaxEnd;
-        for(let i = 0; i < fullCycles; i++) {
-          let arrEnd = 50 * (i + 1);
-          let arrStart = Math.abs(arrEnd - 50);
-          let arr = allTracksId.slice(arrStart, arrEnd);    
-          console.log(arr)        
-          const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },   
-          params: {
-            ids: arr.toString()
-          }             
-          });    
-          let y = 0;      
-          for(let x = arrStart; x < arrEnd; x++) {           
-              tracks[x] = {...tracks[x], isFollowed: data[y]} 
-              y++;
-          }   
-          if(i == fullCycles-1) {
-            arrMaxStart = arrEnd;
-          }     
-        }
-        arrMaxEnd = arrMaxStart + howMuchLeft;
-        let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);
-        
-        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+    let fullCycles = Math.floor(tracks.length / 50);
+    let howMuchLeft = Math.floor(tracks.length % 50);
+    
+    
+    let arrMaxStart;
+    let arrMaxEnd;
+    for(let i = 0; i < fullCycles; i++) {
+      let arrEnd = 50 * (i + 1);
+      let arrStart = Math.abs(arrEnd - 50);
+      let arr = allTracksId.slice(arrStart, arrEnd); 
+      const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
         headers: {
           Authorization: `Bearer ${token}`
         },   
@@ -106,31 +82,66 @@ export async function getPlaylistTracks(token,tracksStart) {
           ids: arr.toString()
         }             
         });
-        isFollowed = isFollowed.data;
-  
-        let y = 0;        
-        for(let x = arrMaxStart; x < arrMaxEnd; x++) {
-            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
-            y++;
-        }   
-      } else {
-        let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },   
-        params: {
-          ids: allTracksId.toString()
-        }             
-        });
-        isFollowed = isFollowed.data;
-        let y = 0;        
-        for(let x = 0; x < tracks.length; x++) {
-            tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
-            y++;
-        }
-      }  
+        
+      if(i == fullCycles-1) {
+        arrMaxStart = arrEnd;
+      }     
+      res = res.concat(data);
+      
+    }
 
-      return tracks
+    
+
+    if(tracks.length % 50 != 0) {
+      arrMaxEnd = arrMaxStart + howMuchLeft;
+      let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);      
+      let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+      headers: {
+      Authorization: `Bearer ${token}`
+      },   
+      params: {
+      ids: arr.toString()
+      }             
+      });
+      isFollowed = isFollowed.data;
+
+      res = res.concat(isFollowed);
+      }  
+  } 
+  
+  else {
+    let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },   
+    params: {
+      ids: allTracksId.toString()
+    }             
+    });
+    res = isFollowed.data;
+    
+  }  
+  return res
+}
+
+export async function getPlaylistTracks(token,dataTracks) {
+  //dataTracks = data.tracks
+  let tracks =  dataTracks.items;  
+  let next = dataTracks.next;
+    if(next != null) {        
+      tracks = [...tracks].concat(await getNextItems(token, next));
+    }  
+    tracks = await getSortedPlaylistTracks(tracks);
+      
+    let isFollowed = await getFollowedStatus(token, tracks);    
+        
+    let y = 0;
+    for(let x = 0; x < tracks.length; x++) {
+        tracks[x] = {...tracks[x], isFollowed: isFollowed[y]} 
+        y++;
+    }
+      
+    return tracks
 }
 
 export async function getAlbumTracks(token, tracks) {
@@ -156,8 +167,7 @@ export async function getAlbumTracks(token, tracks) {
       for(let i = 0; i < fullCycles; i++) {
         let arrEnd = 50 * (i + 1);
         let arrStart = Math.abs(arrEnd - 50);
-        let arr = allTracksId.slice(arrStart, arrEnd);    
-        console.log(arr)        
+        let arr = allTracksId.slice(arrStart, arrEnd);
         const {data} = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
         headers: {
           Authorization: `Bearer ${token}`

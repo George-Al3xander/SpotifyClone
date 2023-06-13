@@ -7,7 +7,7 @@ const DisplayPlaylist = (props) => {
         <div className="list">
             <div className="list-top">
                 <div className="list-top-img">
-                <img src={playlist.img[300]} alt="" />    
+                <img src={playlist.img} alt="" />    
                 </div>  
                 <div className="list-top-titles">
                     <h2>{playlist.isPublic ? "Public" : "Private"} Playlist</h2>
