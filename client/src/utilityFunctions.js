@@ -90,8 +90,6 @@ export async function getFollowedStatus(token, tracks) {
       
     }
 
-    
-
     if(tracks.length % 50 != 0) {
       arrMaxEnd = arrMaxStart + howMuchLeft;
       let arr = allTracksId.slice(arrMaxStart, arrMaxEnd);      
@@ -223,7 +221,6 @@ export async function getAlbumTracks(token, tracks) {
     return tracks
 }
 
-
 export function getDateSorted(time) {   
     let today = new Date();
     let trackDate = new Date(time);
@@ -234,17 +231,17 @@ export function getDateSorted(time) {
     let differ = Math.abs(trackDateDay - todayDay);
     let res;
     if(trackDateYear == todayYear && differ  <= 31) {
-        if(differ >= 7) {
+        if(differ <= 7) {
           res = "1 week ago"
         }            
-        else if(differ >= 14) {
+        else if(differ <= 14 && differ > 7) {
            res = "2 week ago"
         } 
-        else if(differ >= 21) {
+        else if(differ <= 21 && differ > 14) {
           res = "3 week ago"
         } 
 
-        else if(differ >= 14 && differ <= 31) {
+        else if(differ <= 31 && differ > 21) {
           res = "4 week ago"
         }
         else {

@@ -2,24 +2,30 @@ import React, { useRef } from "react";
 import  SpotifyPlayer from "react-spotify-web-playback"
 import ShuffleBtn from "../side/ShuffleBtn";
 import RepeatBtn from "../side/RepeatBtn";
-const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStatus, repeatStatus, repeat, setRepeatStatus, setCurrentTrack,setClickStatus}) => {
+const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStatus, repeatStatus, repeat, setRepeatStatus, setCurrentTrack,setClickStatus, offset}) => {
   const repeatTypes = ['off', 'context' , 'track' ] 
   const item = useRef();  
     return <SpotifyPlayer 
     ref={item} 
     play={clickStatus}     
     hideAttribution={true}
-    token={token}  
+    token={token} 
+    name="Clonify Player" 
+    offset={offset}
+    locale={{
+        next: "Damn"
+    }}
     callback={async (state) => {
         let currentDeviceId = state.currentDeviceId;
         let repeatState = state.repeat;
-        setCurrentDevice(currentDeviceId);                
-        //console.log(repeatStatus, repeatTypes.indexOf(repeatState))     
+        setCurrentDevice(currentDeviceId); 
         if(repeatStatus != repeatTypes.indexOf(repeatState)) {            
             setRepeatStatus(repeatTypes.indexOf(repeatState))            
         }
-        setClickStatus(state.isActive);
-        setCurrentTrack(state.track.uri);       
+        console.log(state)        
+        setClickStatus(state.isPlaying);
+        setCurrentTrack(state.track.uri);
+        localStorage.setItem("recentTrack", state.track.uri)            
         document.body.style.paddingBottom = `${item.current.ref.current.offsetHeight} px`;        
     }}  
     uris={uri} 

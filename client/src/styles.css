@@ -54,8 +54,7 @@
 }
 
 body {
-    font-family:  var(--ff-default);
-    padding-top: 2rem;
+    font-family:  var(--ff-default);  
     background-color: black;
     color: white;
 }
@@ -68,7 +67,12 @@ body svg {
 .container {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: center;
+    gap: .5rem; 
+}
+
+.container > * {
+    flex-basis: 100%;
 }
 
 
@@ -80,12 +84,12 @@ body svg {
 }
 
 .content {
-    max-height: 85vh !important;
-    overflow: scroll;    
+    max-height: 88vh !important;
+    overflow: scroll;  
 }
 
 .side-menu {
-    flex-basis: 40%;
+    flex-basis: 60%;
 }
 
 
@@ -181,6 +185,7 @@ tr h2 {
 
 .track-play-btn svg {
     margin-block: auto;
+    width: min-content;
 }
 
 thead {    
@@ -244,17 +249,18 @@ tbody:before {
 .side-menu-content-nav {
     display: flex;
     justify-content: space-between;
-    
+    font-weight: 500;
 }
 
 .side-menu-content-nav li {
     background-color:  var(--clr-bg-light);
+    font-size: var(--fs-small);
     padding: .5rem;
     border-radius: 1rem;
     opacity: .7;
 }
 
-.side-menu-content-nav li:hover, .side-menu-top-nav > *:hover {
+.side-menu-content-nav li:hover, .side-menu-top-nav > *:hover, .side-menu-content-nav svg {
     cursor: pointer;
     opacity: 1;
 }
@@ -264,7 +270,7 @@ tbody:before {
 .side-menu-content , .side-menu-top-nav, .content {
     overflow-x: hidden;
     background-color: var(--clr-bg);
-    border-radius: 1rem 1rem 0 0;
+    border-radius: 1rem;
     padding: 1rem 2rem;
 }
 

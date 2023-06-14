@@ -1,16 +1,35 @@
 import React, { useState, useRef,useEffect } from "react";
 import DisplayTrack from "./DisplayTrack";
+import { spotifyApi } from "react-spotify-web-playback";
 
 const DisplayTracks = (props) => { 
-    let type = props.type
+    let token = props.token;
+    let type = props.type;
+    let currentPlay = props.currentPlay
+    let setCurrentPlay = props.setCurrentPlay
     const itemsRef = useRef([]);
     let arr = props.array.map(() => {
         return {status: false}
-    }) 
+    }) ;
     const [isHovered, setIsHovered] = useState(arr);
     useEffect(()=> {
         itemsRef.current = itemsRef.current.slice(0, props.array.length);               
-    },[props.array])    
+    },[props.array]);    
+
+    const followTrack = async (id,num) => {
+        await spotifyApi.saveTracks(token, id);
+        let temppArray = currentPlay;
+        temppArray.tracks[num].isFollowed = true;
+        setCurrentPlay(temppArray);
+    }
+
+    const unfollowTrack = async (id,num) => {
+        await spotifyApi.removeTracks(token, id)
+        let temppArray = currentPlay;
+        temppArray.tracks[num].isFollowed = false;
+        setCurrentPlay(temppArray);
+    }
+    
         return (
         <table  className="tracks">
             <thead>
@@ -26,7 +45,20 @@ const DisplayTracks = (props) => {
 
             <tbody>
             {props.array.map((track, num) => {     
-                return <DisplayTrack currentTrack={props.currentTrack} track={track} type={type} clickTrack={props.clickTrack} num={num} isHovered={isHovered} setIsHovered={setIsHovered}/>  
+                return <DisplayTrack 
+                        followTrack={followTrack} 
+                        unfollowTrack={unfollowTrack} 
+                        currentTrack={props.currentTrack} 
+                        track={track} type={type} 
+                        clickTrack={() => {
+                            props.clickTrack(num)
+                        }} 
+                        num={num} 
+                        isHovered={isHovered} 
+                        setOffset={props.setOffset}
+                        currentPlayUri = {props.currentPlayUri}
+                        currentPlaylistUri={props.currentPlay.uri}
+                        setIsHovered={setIsHovered}/>  
                 })}
 
             </tbody>

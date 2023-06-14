@@ -17,16 +17,17 @@ import DisplayAlbum from "../side/DisplayAlbum";
 const Dashboard = ({code}) => {
   const token =  useAuth(code);  
   const navigate = useNavigate();
-  const[currentTrack, setCurrentTrack] = useState("spotify:track:6gxJg7WCL5xdQCyhm4COF2");
-  const [currentPlayUri, setCurrentPlayUri] = useState("")
+  const[currentTrack, setCurrentTrack] = useState("");
+  const [currentPlayUri, setCurrentPlayUri] = useState(localStorage.getItem("recentTrack"))
   const [currentPlay, setCurrentPlay] = useState({});
-  const [clickStatus, setClickStatus] = useState(false);
-  const [empty, setEmpty] = useState("")
+  const [currentPlayingListUri , setCurrentPlayingListUri] = useState("")
+  const [clickStatus, setClickStatus] = useState(false); 
   const [currentDevice, setCurrentDevice] = useState("");
   const [shuffleStatus, setShuffleStatus] = useState(false);
   const repeatTypes = ['off', 'context' , 'track' ]
   const [repeatStatus, setRepeatStatus] = useState(0);
-  const [currentUser, setCurrentUser] = useState({})
+  const [offset, setOffset] = useState(0)
+  
   const playerItem = useRef()
  
 
@@ -38,8 +39,6 @@ const Dashboard = ({code}) => {
     })  
     console.log(data);
   }
-  
-  
 
   const testFunction = async () => { 
     //Basketball and download playlist have problems
@@ -136,6 +135,10 @@ const Dashboard = ({code}) => {
       }
     }
 
+    const playSong = (num, playlist) => {
+
+    }
+
     const clickTrack = (uri) => { 
       if(currentTrack == uri) {
         if(clickStatus == false) {
@@ -151,6 +154,18 @@ const Dashboard = ({code}) => {
      if(typeof uri == "string") {
       setCurrentPlayUri(uri);
      }
+    }
+
+    const clickListPlay =  (uri) => {
+      if(currentPlay.uri == uri) {
+          setClickStatus(true);
+      }
+      else {          
+          setCurrentPlayUri(uri);
+          setOffset(0);
+          setClickStatus(true);
+        }
+        
     }
 
     const shuffle = () => {
@@ -183,17 +198,7 @@ const Dashboard = ({code}) => {
       console.log(await spotifyApi.getQueue(token))
     }
     
-    const clickListPlay = async (uri) => {
-      console.log(uri)
-      
-      setCurrentPlayUri(uri);
-      await spotifyApi.play(token, {
-        context_uri: uri,
-        deviceId: currentDevice,
-        uris: uri
-      });
-      setClickStatus(true);
-    }
+    
     
 
     const getSavedTracks = async () => {
@@ -206,11 +211,6 @@ const Dashboard = ({code}) => {
       console.log(data)
     }
 
-    
-
-    //Madvilliany
-    //uri - "spotify:album:01FCoGEQ3NFWF4fHJzdiax"
-    //id - "01FCoGEQ3NFWF4fHJzdiax"
     return (
       <>      
       <main className="container">
@@ -218,12 +218,40 @@ const Dashboard = ({code}) => {
             token={token} 
             playlistClick={displayPlaylist} 
             albumClick={displayAlbum}
+            currentPlayUri={currentPlayUri}
+            clickStatus={clickStatus}
+            setCurrentPlayUri={setCurrentPlayUri}
             />
         <div className="content">
           <Routes>
              <Route path="/" element={<Home />}/>
-             <Route path="/playlist"  element={<DisplayPlaylist clickPlay={clickListPlay} currentTrack={currentPlayUri}  playlist={currentPlay} clickTrack={clickTrack}/>}/>
-             <Route path="/album" element={<DisplayAlbum currentTrack={currentTrack} album={currentPlay} clickPlay={clickListPlay} clickTrack={clickTrack}/>}/>
+             <Route path="/playlist"  
+             element={<DisplayPlaylist 
+                          clickPlay={clickListPlay} 
+                          currentTrack={currentTrack}  
+                          currentPlayUri={currentPlayUri}
+                          setCurrentPlayUri={setCurrentPlayUri}
+                          playlist={currentPlay} 
+                          clickTrack={clickTrack} 
+                          token={token}
+                          currentPlay={currentPlay}
+                          setCurrentPlay={setCurrentPlay}
+                          playStatus={clickStatus}
+                          setPlayStatus={setClickStatus} 
+                          setOffset={setOffset}                         
+                          />}/>
+             <Route path="/album" 
+             element={<DisplayAlbum 
+                          currentTrack={currentTrack} 
+                          album={currentPlay} 
+                          clickPlay={clickListPlay} 
+                          clickTrack={clickTrack} 
+                          token={token}
+                          currentPlay={currentPlay}
+                          setCurrentPlay={setCurrentPlay}
+                          playStatus={clickStatus}
+                          setPlayStatus={setClickStatus}
+                          />}/>
             <Route path="/search" element={<Search />}/>
           </Routes>
         <input type="text" onChange={searchArtist}/>
@@ -234,17 +262,18 @@ const Dashboard = ({code}) => {
       </main>
         <div className="player">
           <Player 
-            shuffle={shuffle} 
-            shuffleStatus={shuffleStatus} 
-            repeat={repeat}
-            repeatStatus={repeatStatus}
-            setCurrentDevice={setCurrentDevice} 
-            uri={currentPlayUri} 
-            clickStatus={clickStatus} 
-            token={token}           
-            setRepeatStatus={setRepeatStatus}
-            setCurrentTrack={setCurrentTrack}
-            setClickStatus={setClickStatus}
+              shuffle={shuffle} 
+              shuffleStatus={shuffleStatus} 
+              repeat={repeat}
+              repeatStatus={repeatStatus}
+              setCurrentDevice={setCurrentDevice} 
+              uri={currentPlayUri} 
+              clickStatus={clickStatus} 
+              token={token}           
+              setRepeatStatus={setRepeatStatus}
+              setCurrentTrack={setCurrentTrack}
+              setClickStatus={setClickStatus}
+              offset={offset}
             />
         </div>
       </>

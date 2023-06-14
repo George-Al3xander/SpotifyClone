@@ -1,14 +1,10 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import { Link } from "react-router-dom";
 import DisplaySideMenuContent from "../side/DisplaySideMenuContent";
 import { getNextItems } from "../../utilityFunctions";
-/* <h1>SideMenu</h1>
-<Link to="/">Home</Link>
-<h1 onClick={albumClick}>Get album</h1>
-<h1 onClick={playlistClick}>Get playlist</h1> */
 
-const SideMenu = ({playlistClick, albumClick, token}) => {
+
+const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}) => {
     
     const getPlaylists = async () => {
         const {data} = await axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -62,14 +58,21 @@ const SideMenu = ({playlistClick, albumClick, token}) => {
 
     const clickPlaylistNavBtn = async () => {
         setCurrentDisplay(await getPlaylists());
+        
         setIsClicked(true);
         setCurrentDisplayType("playlist")
     }
 
     const clickAlbumNavBtn = async () => {
         setCurrentDisplay(await getAlbums());
+        
         setIsClicked(true);
-        setCurrentDisplayType("album")
+        setCurrentDisplayType("album");
+    }
+
+    const cancelClick = () => {
+        setIsClicked(false);
+        setCurrentDisplayType("")
     }
 
 
@@ -86,14 +89,39 @@ const SideMenu = ({playlistClick, albumClick, token}) => {
             <div className="side-menu-content">                
                     <h1>Your Library</h1>    
                     <ul className="side-menu-content-nav">
-                        <li onClick={clickPlaylistNavBtn}>Playlist</li>
+                        {isClicked == false ? <><li onClick={clickPlaylistNavBtn}>Playlist</li>
                         <li>Podcast & Shows</li>
                         <li onClick={clickAlbumNavBtn}>Albums</li>
-                        <li>Artists</li>
+                        <li>Artists</li></> 
+                        :
+                        <div style={{display: "flex", alignItems: "center", gap: ".5rem"}}>
+                        <svg style={{fill: "var(--clr-bg-light)"}} onClick={cancelClick} xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 -960 960 960" width="30"><path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+                        <li onClick={cancelClick} 
+                            style={{
+                                textTransform: "capitalize",
+                                backgroundColor: "white",
+                                color: "black",
+                                opacity: "1"
+                                }}>
+                                {currentDisplayType}
+                        </li>
+                        </div> 
+                        }
                     </ul>                       
                     <div><input type="text" /></div>
 
-                    {isClicked == false ? null : <DisplaySideMenuContent functions={[playlistClick,albumClick]} type={currentDisplayType} array={currentDisplay}/>}
+                    {isClicked == false ? 
+                    
+                    null 
+                    
+                    :
+                    <DisplaySideMenuContent 
+                        functions={[playlistClick,albumClick]} 
+                        type={currentDisplayType} 
+                        array={currentDisplay}
+                        currentPlayUri={currentPlayUri}
+                        clickStatus={clickStatus}
+                        />}
                     {/* / Component/ */}
                     
             </div>
