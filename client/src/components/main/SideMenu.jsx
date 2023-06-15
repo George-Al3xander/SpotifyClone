@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import DisplaySideMenuContent from "../side/DisplaySideMenuContent";
-import { getNextItems } from "../../utilityFunctions";
+import { getNextArtists, getNextItems } from "../../utilityFunctions";
 
 
 const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}) => {
+
+    const [searchType, setSearchType] = useState("");
+    const [searchKey, setSearchKey] = useState("")
+    const [fullDisplay, setFullDisplay] = useState({})
+    const [searchDisplay, setSearchDisplay] = useState({})
+    const [currentDisplay, setCurrentDisplay] = useState({});
+    const [currentDisplayType, setCurrentDisplayType] = useState("");
+    const [isClicked, setIsClicked] = useState(false)
+
     
     const getPlaylists = async () => {
         const {data} = await axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -56,8 +65,38 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
         return album
     }
 
+
+    const getArtists = async () => {
+        const {data} = await axios.get('https://api.spotify.com/v1/me/following?type=artist&limit=50', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        console.log(await data)
+        
+       let artists = data.artists.items;
+
+       if(data.artists.next != null) {
+           artists = artists.concat(await getNextArtists(token, data.artists.next));
+           
+        }
+        
+        artists = artists.map((artist) => {
+            return  {
+                name: artist.name, 
+                img: artist.images.length > 1 ?  artist.images[2].url
+                : artist.images[0].url,                
+                id: artist.id,
+                uri: artist.uri,
+            }
+        });
+        
+        return artists        
+    }
+
     const clickPlaylistNavBtn = async () => {
         setCurrentDisplay(await getPlaylists());
+        setFullDisplay(await getPlaylists());        
         
         setIsClicked(true);
         setCurrentDisplayType("playlist")
@@ -65,9 +104,18 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
 
     const clickAlbumNavBtn = async () => {
         setCurrentDisplay(await getAlbums());
+        setFullDisplay(await getAlbums());        
         
         setIsClicked(true);
         setCurrentDisplayType("album");
+    }
+
+    const clickArtistsNavBtn = async () => {
+        setCurrentDisplay(await getArtists());
+        setFullDisplay(await getArtists());   
+
+        setIsClicked(true)
+        setCurrentDisplayType("artist")
     }
 
     const cancelClick = () => {
@@ -75,11 +123,24 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
         setCurrentDisplayType("")
     }
 
+    useEffect(() => {
+        if(searchKey == "") {
+            setCurrentDisplay(fullDisplay);
+        } else {            
+            let valid = new RegExp(`${searchKey.toLowerCase()}`)
 
-    const [searchType, setSearchType] = useState("");
-    const [currentDisplay, setCurrentDisplay] = useState({});
-    const [currentDisplayType, setCurrentDisplayType] = useState("");
-    const [isClicked, setIsClicked] = useState(false)
+            setCurrentDisplay(currentDisplay.filter((item) => {
+                if(currentDisplayType != "artist") {
+                    return (valid.test(item.name.toLowerCase()) == true || valid.test(item.owner.toLowerCase()) == true)
+                } else {
+                    return valid.test(item.name.toLowerCase()) == true
+                }
+            }))
+        }
+    }, [searchKey])
+
+    
+    
     return(
         <div className="side-menu">
             <div className="side-menu-top-nav">
@@ -92,7 +153,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                         {isClicked == false ? <><li onClick={clickPlaylistNavBtn}>Playlist</li>
                         <li>Podcast & Shows</li>
                         <li onClick={clickAlbumNavBtn}>Albums</li>
-                        <li>Artists</li></> 
+                        <li onClick={clickArtistsNavBtn}>Artists</li></> 
                         :
                         <div style={{display: "flex", alignItems: "center", gap: ".5rem"}}>
                         <svg style={{fill: "var(--clr-bg-light)"}} onClick={cancelClick} xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 -960 960 960" width="30"><path d="m336-280 144-144 144 144 56-56-144-144 144-144-56-56-144 144-144-144-56 56 144 144-144 144 56 56ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
@@ -108,7 +169,11 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                         </div> 
                         }
                     </ul>                       
-                    <div><input type="text" /></div>
+                    {isClicked == false ? null : <div>
+                        <input placeholder="Search in your library" type="text" onChange={(e) => {
+                            setSearchKey(e.target.value)
+                        }}/>                    
+                    </div>}
 
                     {isClicked == false ? 
                     
@@ -124,7 +189,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                         />}
                     {/* / Component/ */}
                     
-            </div>
+            </div>           
         </div>
     )
 }

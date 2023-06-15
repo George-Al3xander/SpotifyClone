@@ -1,20 +1,13 @@
-import React, { useState, useRef,useEffect } from "react";
+import React from "react";
 import DisplayTrack from "./DisplayTrack";
 import { spotifyApi } from "react-spotify-web-playback";
 
-const DisplayTracks = (props) => { 
+
+const DisplayTracks = (props) => {     
     let token = props.token;
     let type = props.type;
-    let currentPlay = props.currentPlay
-    let setCurrentPlay = props.setCurrentPlay
-    const itemsRef = useRef([]);
-    let arr = props.array.map(() => {
-        return {status: false}
-    }) ;
-    const [isHovered, setIsHovered] = useState(arr);
-    useEffect(()=> {
-        itemsRef.current = itemsRef.current.slice(0, props.array.length);               
-    },[props.array]);    
+    let currentPlay = props.currentPlay;
+    let setCurrentPlay = props.setCurrentPlay;        
 
     const followTrack = async (id,num) => {
         await spotifyApi.saveTracks(token, id);
@@ -49,16 +42,16 @@ const DisplayTracks = (props) => {
                         followTrack={followTrack} 
                         unfollowTrack={unfollowTrack} 
                         currentTrack={props.currentTrack} 
-                        track={track} type={type} 
+                        track={track} 
+                        type={type} 
                         clickTrack={() => {
-                            props.clickTrack(num)
+                            props.clickTrack(track.uri,props.listUri,num)
                         }} 
                         num={num} 
-                        isHovered={isHovered} 
                         setOffset={props.setOffset}
                         currentPlayUri = {props.currentPlayUri}
                         currentPlaylistUri={props.currentPlay.uri}
-                        setIsHovered={setIsHovered}/>  
+                        />  
                 })}
 
             </tbody>

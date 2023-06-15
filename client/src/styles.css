@@ -84,12 +84,20 @@ body svg {
 }
 
 .content {
-    max-height: 88vh !important;
+    max-height: 80vh !important;
     overflow: scroll;  
 }
 
 .side-menu {
-    flex-basis: 60%;
+    flex-basis: 40%;
+    max-width: 40%;
+}
+
+.side-menu input {
+    background-color: var(--clr-bg-light);
+    margin-block: 1rem;
+    padding: .3rem;
+    border-radius: 10px;
 }
 
 
@@ -223,10 +231,6 @@ tbody:before {
     min-width: 1.25rem;
 }
 
-
-
-
-
 .side-menu-top-nav > * {
     display: flex;
     align-items: center;
@@ -274,25 +278,25 @@ tbody:before {
     padding: 1rem 2rem;
 }
 
-.side-menu-content-results {
+.side-menu-content-results {    
     max-height: 49vh;
     overflow: scroll;
-    
 }
 
-.side-menu-content-results li {
-    overflow: hidden;
-    text-overflow: ellipsis;
+.side-menu-content-results li {    
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
     width: 95%;
     padding: .5rem;
-    border-radius: .5rem;
-    max-width: 31.25rem;
-    
-    
+    border-radius: .5rem;   
+     
+}
 
+.side-menu-content-results li h2, .side-menu-content-results li h3 {    
+    
+    overflow: hidden;
+    text-overflow: ellipsis;    
 }
 
 .side-menu-content-results li img {
@@ -305,9 +309,7 @@ tbody:before {
     background-color: var(--clr-bg-light);
 }
 
-.side-menu-content-results h2, .side-menu-content-results h3 {
-    
-    max-width: 12.5rem;
+.side-menu-content-results h2, .side-menu-content-results h3 { 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

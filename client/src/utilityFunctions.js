@@ -56,6 +56,20 @@ export async function getNextItems (token, apiId) {
   }      
 }
 
+export async function getNextArtists(token, apiId) {
+  const {data} = await axios.get(apiId, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })      
+        
+       if(data.artists.next != null) {
+            return data.artists.items.concat(await  getNextArtists(token, data.artists.next));
+        } else {
+            return data.artists.items;
+        }
+}
+
 export async function getFollowedStatus(token, tracks) {
   let res = [];
   let allTracksId = tracks.map((track) => {

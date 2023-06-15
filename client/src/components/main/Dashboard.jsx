@@ -139,21 +139,29 @@ const Dashboard = ({code}) => {
 
     }
 
-    const clickTrack = (uri) => { 
-      if(currentTrack == uri) {
-        if(clickStatus == false) {
-           setClickStatus(true)
-        }
-        else {   
-         setClickStatus(false)
-        }        
-      } else {
-        setClickStatus(true)
+    const clickTrack = async  (trackUri, thisListUri,num) => { 
+      let list = thisListUri;
+      if(currentTrack == trackUri && currentPlayUri == thisListUri) {
+          if(clickStatus == false) {
+              setClickStatus(true);
+          } else {
+            setClickStatus(false);
+          }
       }
-      
-     if(typeof uri == "string") {
-      setCurrentPlayUri(uri);
-     }
+      else if (currentTrack != trackUri && currentPlayUri == thisListUri) {           
+      await spotifyApi.play(token, {
+          context_uri: currentPlayUri,
+          deviceId: currentDevice,
+          offset: num,
+          uris: currentPlayUri
+          })
+              
+      }
+      else {
+          setCurrentPlayUri(thisListUri);
+          setOffset(num);
+          setClickStatus(true)
+      } 
     }
 
     const clickListPlay =  (uri) => {
@@ -198,9 +206,6 @@ const Dashboard = ({code}) => {
       console.log(await spotifyApi.getQueue(token))
     }
     
-    
-    
-
     const getSavedTracks = async () => {
       const {data} = await axios.get('https://api.spotify.com/v1/me/tracks?limit=50', {
         headers: {
@@ -242,22 +247,21 @@ const Dashboard = ({code}) => {
                           />}/>
              <Route path="/album" 
              element={<DisplayAlbum 
-                          currentTrack={currentTrack} 
-                          album={currentPlay} 
                           clickPlay={clickListPlay} 
+                          currentTrack={currentTrack}  
+                          currentPlayUri={currentPlayUri}
+                          setCurrentPlayUri={setCurrentPlayUri}
+                          album={currentPlay} 
                           clickTrack={clickTrack} 
                           token={token}
                           currentPlay={currentPlay}
                           setCurrentPlay={setCurrentPlay}
                           playStatus={clickStatus}
-                          setPlayStatus={setClickStatus}
+                          setPlayStatus={setClickStatus} 
+                          setOffset={setOffset}  
                           />}/>
             <Route path="/search" element={<Search />}/>
           </Routes>
-        <input type="text" onChange={searchArtist}/>
-        <button onClick={getPlaylist}>Get playlist</button>
-        <button onClick={testFunction}>Test btn</button>
-        <button onClick={getQueue}>Get Q</button>
         </div>
       </main>
         <div className="player">

@@ -15,14 +15,14 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
     locale={{
         next: "Damn"
     }}
-    callback={async (state) => {
+    callback={(state) => {
         let currentDeviceId = state.currentDeviceId;
         let repeatState = state.repeat;
         setCurrentDevice(currentDeviceId); 
         if(repeatStatus != repeatTypes.indexOf(repeatState)) {            
             setRepeatStatus(repeatTypes.indexOf(repeatState))            
-        }
-        console.log(state)        
+        }                
+        console.log(state)
         setClickStatus(state.isPlaying);
         setCurrentTrack(state.track.uri);
         localStorage.setItem("recentTrack", state.track.uri)            
@@ -39,7 +39,8 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
         trackArtistColor: "grey",
         color: "white",
         sliderColor: "white",
-        bgColor: "black"
+        bgColor: "black",
+        sliderHandleColor: "white"
     }}
     />
 }
