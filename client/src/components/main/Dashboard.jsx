@@ -6,7 +6,7 @@ import SideMenu from "./SideMenu";
 import Home from "./Home";
 import  Search  from "./Search";
 import Player from "./Player";
-import {getSortedPlaylistTracks, getPlaylistTracks,getNextItems, msToTime, getAlbumTracks } from "../../utilityFunctions";
+import {getPlaylistTracks, msToTime, getAlbumTracks } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
 
 import { spotifyApi } from "react-spotify-web-playback";
@@ -64,9 +64,9 @@ const Dashboard = ({code}) => {
     navigate("/playlist"); 
   }
 
-  const  searchArtist =  async (e) => {
-      let key = e.target.value;
-  const {data} = await axios.get("https://api.spotify.com/v1/search", {
+  const  searchArtist =  async () => {
+      
+    const {data} = await axios.get("https://api.spotify.com/v1/search", {
     headers: {
       Authorization: `Bearer ${token}`
     },
@@ -135,8 +135,15 @@ const Dashboard = ({code}) => {
       }
     }
 
-    const playSong = (num, playlist) => {
+    const getArtist = async (id) => {
+      id = "7dGJo4pcD2V6oG8kP0tJRR" //Eminem
+      const {data} = await axios.get(`https://api.spotify.com/v1/artists/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },        
+      });
 
+      console.log(data)
     }
 
     const clickTrack = async  (trackUri, thisListUri,num) => { 
@@ -226,7 +233,7 @@ const Dashboard = ({code}) => {
             currentPlayUri={currentPlayUri}
             clickStatus={clickStatus}
             setCurrentPlayUri={setCurrentPlayUri}
-            />
+        />
         <div className="content">
           <Routes>
              <Route path="/" element={<Home />}/>
@@ -260,7 +267,7 @@ const Dashboard = ({code}) => {
                           setPlayStatus={setClickStatus} 
                           setOffset={setOffset}  
                           />}/>
-            <Route path="/search" element={<Search />}/>
+            <Route path="/search"  element={<Search token={token}/>}/>
           </Routes>
         </div>
       </main>

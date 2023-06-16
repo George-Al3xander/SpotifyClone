@@ -1,0 +1,8 @@
+{
+    name: data.name,
+    description: data.description,
+    followers: data.followers.total,    
+    id: data.id,
+    uri: data.uri,
+    tracks: tracks
+ }

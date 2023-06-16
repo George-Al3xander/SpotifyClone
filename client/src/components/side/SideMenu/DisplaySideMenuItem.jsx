@@ -3,8 +3,7 @@ import React, { useRef } from "react";
 
 const DisplaySideMenuItem = ({type, item, currentPlayUri, clickStatus,func}) => {
 
-    const itemLi = useRef();
-    
+    const itemLi = useRef();    
     return <li  key={item.id} 
                 ref={itemLi}
                 onDoubleClick={async () => {
