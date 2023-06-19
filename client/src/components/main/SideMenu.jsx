@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
 import DisplaySideMenuContent from "../side/SideMenu/DisplaySideMenuContent";
-import { getNextArtists, getNextItems, getSortedPlaylistTracks } from "../../utilityFunctions";
+import { getNextArtists, getNextItems, getShowsEpisodes, getSortedPlaylistTracks } from "../../utilityFunctions";
 
 import likedSongsCover from "../../assets/images/likedsongs.jpg"
 
@@ -15,7 +15,21 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
     const [searchDisplay, setSearchDisplay] = useState({})
     const [currentDisplay, setCurrentDisplay] = useState([]);
     const [currentDisplayType, setCurrentDisplayType] = useState("");
-    const [isClicked, setIsClicked] = useState(false)
+    const [isClicked, setIsClicked] = useState(false);
+
+    const testFunction = async () => {
+        const shows = await getShows();
+        let testShow = shows[1];
+
+        // const {data} = await axios.get(`https://api.spotify.com/v1/shows/${testShow.id}/episodes?limit=20`, {
+        //     headers: {
+        //         Authorization: `Bearer ${token}`
+        //     },            
+        // })
+        // console.log(data);
+
+        console.log(testShow.id)
+    }
     
     const getPlaylists = async () => {
         const {data} = await axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -96,21 +110,48 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
         return artists        
     }
 
+    const getShows = async () => {
+        const {data} = await axios.get("https://api.spotify.com/v1/me/shows?limit=1", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+
+        let shows = data.items;
+
+        shows = shows.concat(await getNextItems(token, data.next));
+        shows = shows.map((show) => {
+            show = show.show;
+            return {
+                name: show.name,     
+                owner: show.publisher,                    
+                img: show.images.length > 1 ?  show.images[2].url
+                   : show.images[0].url,                
+                id: show.id,
+                uri: show.uri,
+                description: show.description,
+                isExplicit: show.explicit                
+            }
+        })
+
+        return shows;
+    }
+
     const clickPlaylistNavBtn = async () => {
         setCurrentDisplay(await getPlaylists());
         setFullDisplay(await getPlaylists());   
         setIsClicked(true);
         setCurrentDisplayType("playlist")
-        setTimeout(async () => {
-            // let tempArray = fullDisplay;
-            // let savedTracks = await getSavedTracks();
-            // tempArray = tempArray.unshift(savedTracks);
-            // setFullDisplay(tempArray); 
-            console.log(fullDisplay)
-            console.log("Here")
-        },1)     
-        
+        // setTimeout(async () => {
+        //     let tempArray = fullDisplay;
+        //     let savedTracks = await getSavedTracks();
+        //     tempArray = tempArray.push(savedTracks);
+        //     // setFullDisplay(tempArray); 
+        //     // setCurrentDisplay(tempArray);  
+        //     console.log(tempArray)           
+        // },1);  
     }
+    
 
     const clickAlbumNavBtn = async () => {
         setCurrentDisplay(await getAlbums());
@@ -126,6 +167,13 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
 
         setIsClicked(true)
         setCurrentDisplayType("artist")
+    }
+    const clickShowsNavBtn = async () => {
+        setCurrentDisplay(await getShows())
+        setFullDisplay(await getShows());
+
+        setIsClicked(true);
+        setCurrentDisplayType("Podcast & Shows")
     }
 
     const cancelClick = () => {
@@ -194,7 +242,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                     <h1>Your Library</h1>    
                     <ul className="side-menu-content-nav">
                         {isClicked == false ? <><li onClick={clickPlaylistNavBtn}>Playlist</li>
-                        <li>Podcast & Shows</li>
+                        <li onClick={clickShowsNavBtn}>Podcast & Shows</li>
                         <li onClick={clickAlbumNavBtn}>Albums</li>
                         <li onClick={clickArtistsNavBtn}>Artists</li></> 
                         :
@@ -231,7 +279,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                         clickStatus={clickStatus}
                         />}
                     {/* / Component/ */}
-                    <button onClick={getSavedTracks}>Click me</button>
+                    <button onClick={testFunction}>Click me</button>
             </div>           
         </div>
     )

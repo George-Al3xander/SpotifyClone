@@ -10,6 +10,7 @@ import {getPlaylistTracks, msToTime, getAlbumTracks } from "../../utilityFunctio
 import DisplayPlaylist from "../side/DisplayPlaylist";
 import { spotifyApi } from "react-spotify-web-playback";
 import DisplayAlbum from "../side/DisplayAlbum";
+import DisplayShow from "../side/DisplayShow";
 
 
 
@@ -29,23 +30,13 @@ const Dashboard = ({code}) => {
   const [isLoading, setIsLoading] = useState(false);
 
   
-  const playerItem = useRef()
- 
-
-  const getUser = async () => {
-    const {data} = await axios.get("https://api.spotify.com/v1/me", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }      
-    })  
-    console.log(data);
-  }
 
   const testFunction = async () => { 
-    console.log(JSON.parse(localStorage.getItem("beeba")))   
+    let id = "7rrXnDyc70sfTcJqBO32lr"
+
+    displayShow(id); 
   }
   
-
   const displayAlbum = async (id) => {
     setIsLoading(true);
     let album;
@@ -82,22 +73,13 @@ const Dashboard = ({code}) => {
     })
   }
 
-  const  searchArtist =  async () => {
-      
-    const {data} = await axios.get("https://api.spotify.com/v1/search", {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    params: {
-      q: key,
-      type: "track"
-    }
-  })    
-  console.log(data)
+  const displayShow = async (id) => {
+    let show = await getShow(id);
+    setCurrentPlay(show);
+    navigate("/show")
+    
   }
-  
-   
-   
+ 
     const getPlaylist = async (id) => {       
       let verySmall = "0J0osxjpvQiNkRxiF9CWI4"      
       let small  = "16rriBgSVvBmlMFw9gwYP0"      
@@ -153,17 +135,26 @@ const Dashboard = ({code}) => {
       }
     }
 
-    const getArtist = async (id) => {
-      id = "7dGJo4pcD2V6oG8kP0tJRR" //Eminem
-      const {data} = await axios.get(`https://api.spotify.com/v1/artists/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },        
-      });
+    const getShow = async (id) => {
+        const {data} = await axios.get(`https://api.spotify.com/v1/shows/${id}` , {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        })        
+        let show = {
+          name: data.name,     
+                owner: data.publisher,                    
+                img: data.images.length > 1 ?  data.images[2].url
+                   : data.images[0].url,                
+                id: data.id,
+                uri: data.uri,
+                description: data.description,
+                isExplicit: data.explicit 
+        }
 
-      console.log(data)
+        return show
     }
-
+   
     const clickTrack = async  (trackUri, thisListUri,num) => { 
       let list = thisListUri;
       if(currentTrack == trackUri && currentPlayUri == thisListUri) {
@@ -287,7 +278,11 @@ const Dashboard = ({code}) => {
                           setPlayStatus={setClickStatus} 
                           setOffset={setOffset}
                           isLoading={isLoading}  
-                          />}/>
+              />}/>
+            <Route path="/show" 
+            element={<DisplayShow 
+                          show={currentPlay}  
+            />}/>
             <Route path="/search"  
             element={<Search 
                           token={token}

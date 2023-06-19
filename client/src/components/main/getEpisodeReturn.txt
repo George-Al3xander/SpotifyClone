@@ -1,0 +1,11 @@
+return {
+    name: episode.name,     
+    owner: episode.publisher,                    
+    img: episode.images.length > 1 ?  episode.images[1].url
+    : episode.images[0].url,                
+    id: episode.id,
+    uri: episode.uri,
+    data: episode.release_date
+    description: episode.description,
+    isExplicit: episode.explicit
+}

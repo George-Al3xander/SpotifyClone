@@ -235,6 +235,39 @@ export async function getAlbumTracks(token, tracks) {
     return tracks
 }
 
+function getEpisodesSorted() {
+  
+}
+
+export async function getShowsEpisodes(token, id) {
+  const {data} = await axios.get(`https://api.spotify.com/v1/shows/${id}/episodes?limit=20`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },            
+  })
+
+  let episodes = data.items.map((episode) => {
+    return {
+      name: episode.name,                              
+      img: episode.images.length > 1 ?  episode.images[1].url
+      : episode.images[0].url,                
+      id: episode.id,
+      uri: episode.uri,
+      data: episode.release_date,
+      description: episode.description,
+      isExplicit: episode.explicit
+    }
+  })
+    
+  
+  return {
+    items: episodes,
+    next: data.next,
+    previous: data.previous
+  }
+  
+}
+
 export function getDateSorted(time) {   
     let today = new Date();
     let trackDate = new Date(time);
