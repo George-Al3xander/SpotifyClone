@@ -6,7 +6,7 @@ import SideMenu from "./SideMenu";
 import Home from "./Home";
 import  Search  from "./Search";
 import Player from "./Player";
-import {getPlaylistTracks, msToTime, getAlbumTracks } from "../../utilityFunctions";
+import {getPlaylistTracks, msToTime, getAlbumTracks, getShowsEpisodes } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
 import { spotifyApi } from "react-spotify-web-playback";
 import DisplayAlbum from "../side/DisplayAlbum";
@@ -141,17 +141,19 @@ const Dashboard = ({code}) => {
             Authorization: `Bearer ${token}`,
           }
         })        
+        let episodes = await getShowsEpisodes(token, data.id);
         let show = {
           name: data.name,     
                 owner: data.publisher,                    
-                img: data.images.length > 1 ?  data.images[2].url
+                img: data.images.length > 1 ?  data.images[1].url
                    : data.images[0].url,                
                 id: data.id,
                 uri: data.uri,
                 description: data.description,
-                isExplicit: data.explicit 
+                isExplicit: data.explicit,
+                episodes: episodes
         }
-
+        console.log(show)
         return show
     }
    
