@@ -1,9 +1,11 @@
 import React from "react";
 
-const DisplaySearchItem = ({item, type}) => {
+const DisplaySearchItem = ({item, type, func}) => {
 
     return(
-        <div className="search-item">
+        <div onClick={() => {
+            func(item.id);
+        }} className={"search-item"} >
             <div>
             {type == "artist" ? <img  style={{borderRadius: "50%", aspectRatio: "1 / 1"}}  src={item.img} alt="" /> : <img  src={item.img} alt="" />}
             </div> 
@@ -15,11 +17,14 @@ const DisplaySearchItem = ({item, type}) => {
             item.owner.map((artist) => {
                 return <>
                     <a href={artist.external_urls.spotify}>{artist.name}</a> {item.owner.indexOf(artist) != item.owner.length-1 ? ", " : null}
-                </>
-                })  
+                    </>
+                })             
                 
-                : 
-                <>{item.owner}</>}
+            :
+
+            <div>{item.owner}</div>
+            
+            }
             </h2>           
         </div>
     )

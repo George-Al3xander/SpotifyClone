@@ -8,7 +8,6 @@ import  Search  from "./Search";
 import Player from "./Player";
 import {getPlaylistTracks, msToTime, getAlbumTracks } from "../../utilityFunctions";
 import DisplayPlaylist from "../side/DisplayPlaylist";
-
 import { spotifyApi } from "react-spotify-web-playback";
 import DisplayAlbum from "../side/DisplayAlbum";
 
@@ -26,7 +25,9 @@ const Dashboard = ({code}) => {
   const [shuffleStatus, setShuffleStatus] = useState(false);
   const repeatTypes = ['off', 'context' , 'track' ]
   const [repeatStatus, setRepeatStatus] = useState(0);
-  const [offset, setOffset] = useState(0)
+  const [offset, setOffset] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
   
   const playerItem = useRef()
  
@@ -41,27 +42,44 @@ const Dashboard = ({code}) => {
   }
 
   const testFunction = async () => { 
-    //Basketball and download playlist have problems
-
-    //All good with getPlaylist function
-    let basketball = "0xtweFcEO3q0LtNyahzkZN";
-
-    //Getting 400 error with getPlaylist function, with follow contain check
-    let download = "3CLLxetdnYCrLwNoDiyV1G"
-
-      console.log(await getPlaylist(download));    
+    console.log(JSON.parse(localStorage.getItem("beeba")))   
   }
+  
 
   const displayAlbum = async (id) => {
-    let album = await getAlbum(id);
+    setIsLoading(true);
+    let album;
+    if(localStorage.getItem(id) == null) {
+      album = await getAlbum(id);
+        localStorage.setItem(id, JSON.stringify(album))
+    } else {
+      album = JSON.parse(localStorage.getItem(id))
+    }
     setCurrentPlay(album);
-    navigate("/album"); 
+    setIsLoading(false);
+    navigate("/album");    
   }
 
-  const displayPlaylist = async (id) => {    
-    let playlist = await getPlaylist(id);
+  const displayPlaylist = async (id) => {  
+    setIsLoading(true);
+    let playlist; 
+    if(localStorage.getItem(id) == null) {
+      playlist = await getPlaylist(id);
+      localStorage.setItem(id, JSON.stringify(playlist))
+    } else {
+      playlist =  JSON.parse(localStorage.getItem(id))
+    }    
     setCurrentPlay(playlist);
+    setIsLoading(false);
     navigate("/playlist"); 
+    setTimeout(async () => {
+      let playlistApi = await getPlaylist(id);      
+      let playlistStorage = JSON.parse(localStorage.getItem(id));
+      if(playlistApi.tracks.length != playlistStorage.tracks.length) {
+        localStorage.setItem(id, JSON.stringify(playlistApi)); 
+        setCurrentPlay(playlistApi);         
+      }
+    })
   }
 
   const  searchArtist =  async () => {
@@ -225,6 +243,7 @@ const Dashboard = ({code}) => {
 
     return (
       <>      
+      <button onClick={testFunction}>Click that mofo</button>
       <main className="container">
         <SideMenu 
             token={token} 
@@ -250,7 +269,8 @@ const Dashboard = ({code}) => {
                           setCurrentPlay={setCurrentPlay}
                           playStatus={clickStatus}
                           setPlayStatus={setClickStatus} 
-                          setOffset={setOffset}                         
+                          setOffset={setOffset}
+                          isLoading={isLoading}                         
                           />}/>
              <Route path="/album" 
              element={<DisplayAlbum 
@@ -265,10 +285,16 @@ const Dashboard = ({code}) => {
                           setCurrentPlay={setCurrentPlay}
                           playStatus={clickStatus}
                           setPlayStatus={setClickStatus} 
-                          setOffset={setOffset}  
+                          setOffset={setOffset}
+                          isLoading={isLoading}  
                           />}/>
-            <Route path="/search"  element={<Search token={token}/>}/>
-          </Routes>
+            <Route path="/search"  
+            element={<Search 
+                          token={token}
+                          displayAlbum={displayAlbum}
+                          displayPlaylist={displayPlaylist}
+            />}/>
+          </Routes>          
         </div>
       </main>
         <div className="player">

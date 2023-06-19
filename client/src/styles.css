@@ -110,8 +110,13 @@ th {
 }
 
 
-.list-top, .list-top-main-info, .list-top-titles, .track-main-info, .track-artist {
+.list-top, .list-top-main-info, .list-top-titles, .track-main-info, .track-artist, .search-results-category {
     display: flex;
+}
+
+.search-results-category > * {
+    flex-basis: 100%;
+    justify-content: space-between;
 }
 
 .list-top-main-info img {
@@ -240,6 +245,7 @@ tbody:before {
 
 }
 
+
 .side-menu {
     position: sticky;
     top: 100%
@@ -326,7 +332,23 @@ tbody:before {
     background-color: var(--clr-bg-light);
     padding: 1rem;
     border-radius: 2rem;
-    
+}
+
+.search-item {
+    padding: 1rem;
+    border-radius: 1rem;
+}
+.search-item h2 {
+    color: gray;
+}
+
+.search-item > * {
+    margin-bottom: 1rem;
+}
+
+.search-item:hover {
+    cursor: pointer;
+    background-color: var(--clr-bg-light);
 
 }
 
@@ -334,7 +356,23 @@ tbody:before {
     opacity: .7;
 }   
 
+.search-results-category {
+    gap: 1rem;
+    padding: 1rem;
+}
 
+.loading-screen {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;    
+}
+
+.loading-screen img {
+    max-width: 10%;
+    margin-block: auto;
+}
 
 
 

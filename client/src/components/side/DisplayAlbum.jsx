@@ -1,10 +1,19 @@
 import React from "react";
 import DisplayTracks from "./DisplayTracks";
+import loadingGif from "../../assets/images/loading.gif"
 
 const DisplayAlbum = (props) => {
     let album = props.album;   
+    let isLoading = props.isLoading;
+    let token = props.token;
 
     return(
+        isLoading == true ? 
+
+        <div className="loading-screen"><img src={loadingGif} alt="" /> </div>
+
+        :
+
         <div className="list">
             <div className="list-top">
                 <div className="list-top-img">
@@ -46,6 +55,7 @@ const DisplayAlbum = (props) => {
 
             <div className="list-middle">
                 <DisplayTracks 
+                        token={token} 
                         type={"album"} 
                         currentTrack={props.currentTrack} 
                         listUri={props.album.uri} 

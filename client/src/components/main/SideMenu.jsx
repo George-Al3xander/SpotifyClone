@@ -4,17 +4,18 @@ import axios from 'axios';
 import DisplaySideMenuContent from "../side/SideMenu/DisplaySideMenuContent";
 import { getNextArtists, getNextItems, getSortedPlaylistTracks } from "../../utilityFunctions";
 
+import likedSongsCover from "../../assets/images/likedsongs.jpg"
+
 
 const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}) => {
 
     const [searchType, setSearchType] = useState("");
     const [searchKey, setSearchKey] = useState("")
-    const [fullDisplay, setFullDisplay] = useState({})
+    const [fullDisplay, setFullDisplay] = useState([])
     const [searchDisplay, setSearchDisplay] = useState({})
-    const [currentDisplay, setCurrentDisplay] = useState({});
+    const [currentDisplay, setCurrentDisplay] = useState([]);
     const [currentDisplayType, setCurrentDisplayType] = useState("");
     const [isClicked, setIsClicked] = useState(false)
-
     
     const getPlaylists = async () => {
         const {data} = await axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
@@ -37,7 +38,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                 uri: list.uri,
              }
         });
-        
+       
         return playlist
     }
 
@@ -97,10 +98,18 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
 
     const clickPlaylistNavBtn = async () => {
         setCurrentDisplay(await getPlaylists());
-        setFullDisplay(await getPlaylists());        
-        
+        setFullDisplay(await getPlaylists());   
         setIsClicked(true);
         setCurrentDisplayType("playlist")
+        setTimeout(async () => {
+            // let tempArray = fullDisplay;
+            // let savedTracks = await getSavedTracks();
+            // tempArray = tempArray.unshift(savedTracks);
+            // setFullDisplay(tempArray); 
+            console.log(fullDisplay)
+            console.log("Here")
+        },1)     
+        
     }
 
     const clickAlbumNavBtn = async () => {
@@ -125,14 +134,13 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
     }
 
     useEffect(() => {
+        let valid = new RegExp(`${searchKey.toLowerCase()}`)
         if(searchKey == "") {
             setCurrentDisplay(fullDisplay);
-        } else {            
-            let valid = new RegExp(`${searchKey.toLowerCase()}`)
-
-            setCurrentDisplay(currentDisplay.filter((item) => {
+        } else { 
+            setCurrentDisplay(fullDisplay.filter((item) => {
                 if(currentDisplayType != "artist") {
-                    return (valid.test(item.name.toLowerCase()) == true || valid.test(item.owner.toLowerCase()) == true)
+                    return (valid.test(item.name.toLowerCase()) == true || valid.test(item.owner.toLowerCase()) == true);
                 } else {
                     return valid.test(item.name.toLowerCase()) == true
                 }
@@ -142,21 +150,33 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
 
 
     const getSavedTracks = async () => {
-
         const {data} = await axios.get("https://api.spotify.com/v1/me/tracks?limit=50", {
             headers: {
                 Authorization: `Bearer ${token}`
             }
-        })
-        //console.log(data)
-
+        })   
         let tracks = data.items;
         if(data.next != null) {
             tracks = tracks.concat(await getNextItems(token, data.next));
         }
         tracks = getSortedPlaylistTracks(tracks);
         console.log(tracks)
-        //https://api.spotify.com/v1/me/tracks?limit=50
+        let uri = tracks.map((track) => {
+            return track.uri
+        })
+        let currUserName = await axios.get("https://api.spotify.com/v1/me", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+        currUserName = currUserName.data.display_name;       
+        return  {
+            name: "Liked Songs",     
+            owner: currUserName,                    
+            img: likedSongsCover,                
+            id: "savedtracks",  
+            uri:  uri     
+        }
     }
     
     

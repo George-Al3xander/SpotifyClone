@@ -1,20 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import DisplaySearchResults from "../side/Search/DisplaySearchResults";
-const Search = ({token}) => {
+const Search = ({token, displayAlbum, displayPlaylist}) => {
     const [searchKey, setSearchKey] = useState("");
     const [resultsTracks, setResultsTracks] = useState([]);
     const [resultsArtists, setResultsArtists] = useState([]);
     const [resultsAlbums, setResultsAlbums] = useState([]);   
     const [resultsPlaylists, setResultsPlaylists] = useState([]);   
+    const [topResult, setTopResult] = useState({})
     const itemDiv = useRef();
     const itemSvg = useRef();
-    //Results
-    // Top res - Songs
-    //Artists
-    //Albums
-    //Playlists
-    
+
+    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined)
+       
 
     const  searchItems =  async () => {      
         const {data} = await axios.get("https://api.spotify.com/v1/search", {
@@ -30,8 +28,7 @@ const Search = ({token}) => {
         return data
     }
 
-    useEffect(() => {
-        
+    useEffect(() => {        
         const setEverything =  async () => {
             const data = await searchItems();
             let tracks = await data.tracks;
@@ -39,15 +36,11 @@ const Search = ({token}) => {
             let albums = await data.albums;
             let playlists = await data.playlists;
 
-           
-            console.log(artists)
-            
-
             setResultsPlaylists(playlists.items.map((list) => {
                return  {
                     name: list.name,     
                     owner: list.owner.display_name,                    
-                    img: list.images.length > 1 ?  list.images[2].url
+                    img: list.images.length > 1 ?  list.images[1].url
                        : list.images[0].url,                
                     id: list.id,
                     uri: list.uri,
@@ -69,7 +62,7 @@ const Search = ({token}) => {
                 return  {
                      name: list.name,     
                      owner: list.artists,                    
-                     img: list.images.length > 1 ?  list.images[2].url
+                     img: list.images.length > 1 ?  list.images[1].url
                         : list.images[0].url,                
                      id: list.id,
                      uri: list.uri,
@@ -78,7 +71,7 @@ const Search = ({token}) => {
             setResultsArtists(artists.items.map((artist) => {
                 return {
                     name: artist.name,
-                    img: artist.images.length > 1 ?  artist.images[2].url
+                    img: artist.images.length > 1 ?  artist.images[1].url
                         : artist.images[0].url,
                     id: artist.id,
                     uri: artist.uri,
@@ -113,15 +106,32 @@ const Search = ({token}) => {
 
             </div>
 
-            <div className="results">
-                {searchKey == "" ? 
-                    (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined) 
-                    
-                    :
-                    
-                    <DisplaySearchResults array={resultsAlbums} type={"album"} />
-                   
-                    }
+            <div className="search-results">
+                {(coond && searchKey != "") ? 
+                <>
+                
+                <DisplaySearchResults 
+                       array={resultsArtists} 
+                       type={"artist"}
+               />
+                <DisplaySearchResults 
+                        array={resultsAlbums} 
+                        type={"album"}
+                        func={displayAlbum}
+                />
+                <DisplaySearchResults 
+                        array={resultsPlaylists} 
+                        type={"playlist"}
+                        func={displayPlaylist}
+                /> 
+                
+                </>
+                
+                
+                :null
+
+
+                }                
             </div>
         </div>
     )
