@@ -110,7 +110,7 @@ th {
 }
 
 
-.list-top, .list-top-main-info, .list-top-titles, .track-main-info, .track-artist, .search-results-category {
+.list-top, .list-top-main-info, .list-top-titles, .track-main-info, .track-artist, .search-results-category, .episode {
     display: flex;
 }
 
@@ -352,6 +352,10 @@ tbody:before {
 
 }
 
+.search-field input {
+   width: 100%; 
+}
+
 .search-field svg{
     opacity: .7;
 }   
@@ -373,6 +377,56 @@ tbody:before {
     max-width: 10%;
     margin-block: auto;
 }
+
+.episode {
+    margin-block: 2rem;
+}
+
+.episode > * {
+    flex-basis: 100%;
+}
+
+.episode h1 {
+    font-size: var(--fs-medium);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+
+
+.episode-btns {
+    display: flex;
+    align-items: center;
+}
+
+.episode  p {
+    opacity: .7;
+}
+
+.episode-btns > * {
+    margin-right: .5rem;
+}
+
+.episode-btns svg {
+    opacity: 1 !important;
+}
+
+.btn-episode {
+    background-color: white;
+    color: black;
+    width: 100%;
+    text-align: center;
+    margin-block: 1rem;  
+    transition: all .5s ease;
+}
+
+.btn-episode:hover {
+    cursor: pointer;
+    letter-spacing: .3rem;
+    transition: all .5s ease;
+}
+
+
 
 
 

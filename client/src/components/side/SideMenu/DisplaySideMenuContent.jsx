@@ -9,6 +9,9 @@ const DisplaySideMenuContent = ({type, array,  functions, currentPlayUri, clickS
     else if(type == "album") {
         func = functions[1]
     }
+    else if(type == "Podcast & Shows") {
+        func = functions[2]
+    }
    
     return(
     <ul className="side-menu-content-results">

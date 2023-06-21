@@ -74,7 +74,13 @@ const Dashboard = ({code}) => {
   }
 
   const displayShow = async (id) => {
-    let show = await getShow(id);
+    let show;
+    if(localStorage.getItem(id) == null) {
+      show = await getShow(id);
+      localStorage.setItem(id, JSON.stringify(show))
+    } else {
+      show =  JSON.parse(localStorage.getItem(id))
+    }
     setCurrentPlay(show);
     navigate("/show")
     
@@ -141,7 +147,7 @@ const Dashboard = ({code}) => {
             Authorization: `Bearer ${token}`,
           }
         })        
-        let episodes = await getShowsEpisodes(token, data.id);
+        
         let show = {
           name: data.name,     
                 owner: data.publisher,                    
@@ -152,8 +158,7 @@ const Dashboard = ({code}) => {
                 description: data.description,
                 isExplicit: data.explicit,
                 episodes: episodes
-        }
-        console.log(show)
+        }        
         return show
     }
    
@@ -242,6 +247,7 @@ const Dashboard = ({code}) => {
             token={token} 
             playlistClick={displayPlaylist} 
             albumClick={displayAlbum}
+            showClick={displayShow}
             currentPlayUri={currentPlayUri}
             clickStatus={clickStatus}
             setCurrentPlayUri={setCurrentPlayUri}
@@ -283,7 +289,13 @@ const Dashboard = ({code}) => {
               />}/>
             <Route path="/show" 
             element={<DisplayShow 
-                          show={currentPlay}  
+                          token={token}
+                          show={currentPlay}
+                          currentTrack={currentTrack}  
+                          currentPlayUri={currentPlayUri}
+                          setCurrentPlayUri={setCurrentPlayUri}
+                          setCurrentPlay={setCurrentPlay}  
+                          playStatus={clickStatus}
             />}/>
             <Route path="/search"  
             element={<Search 

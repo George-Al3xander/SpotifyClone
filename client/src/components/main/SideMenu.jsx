@@ -7,7 +7,7 @@ import { getNextArtists, getNextItems, getShowsEpisodes, getSortedPlaylistTracks
 import likedSongsCover from "../../assets/images/likedsongs.jpg"
 
 
-const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}) => {
+const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus, showClick}) => {
 
     const [searchType, setSearchType] = useState("");
     const [searchKey, setSearchKey] = useState("")
@@ -168,6 +168,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
         setIsClicked(true)
         setCurrentDisplayType("artist")
     }
+
     const clickShowsNavBtn = async () => {
         setCurrentDisplay(await getShows())
         setFullDisplay(await getShows());
@@ -272,7 +273,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus}
                     
                     :
                     <DisplaySideMenuContent 
-                        functions={[playlistClick,albumClick]} 
+                        functions={[playlistClick,albumClick,showClick]} 
                         type={currentDisplayType} 
                         array={currentDisplay}
                         currentPlayUri={currentPlayUri}
