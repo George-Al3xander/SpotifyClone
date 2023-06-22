@@ -1,19 +1,10 @@
 import React from "react";
-import {displayEpisodeDuration } from "../../utilityFunctions";
+import {displayEpisodeDuration, displayEpisodeDate } from "../../utilityFunctions";
 import moment from "moment";
 
 const DisplayEpisode = ({episode, currentPlayUri, playStatus,firstItem,num}) => {
-
-    const displayDate = () => {
-        let today = new Date();
-        let episodeDate = new Date(episode.date)
-        if(episodeDate.getFullYear() != today.getFullYear()) {
-            return moment(episode.date).format("MMM, YYYY")
-        }
-        else {
-            return moment(episode.date).format("MMM, DDD")
-        }
-    }
+console.log(episode)
+    
 
     return(
     <div className="episode">
@@ -42,7 +33,7 @@ const DisplayEpisode = ({episode, currentPlayUri, playStatus,firstItem,num}) => 
             }
 
             <p>
-            {displayDate()}
+            {displayEpisodeDate(episode.date)}
             </p>
 
             <p>

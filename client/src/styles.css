@@ -349,7 +349,11 @@ tbody:before {
 .search-item:hover {
     cursor: pointer;
     background-color: var(--clr-bg-light);
+}
 
+.search-item h3{
+    font-size: var(--fs-small);
+    opacity: .7;
 }
 
 .search-field input {

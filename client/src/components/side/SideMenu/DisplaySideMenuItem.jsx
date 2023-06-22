@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 
 
 const DisplaySideMenuItem = ({type, item, currentPlayUri, clickStatus,func}) => {
-    console.log(func)
+    
 
     const itemLi = useRef();    
     return <li  key={item.id} 

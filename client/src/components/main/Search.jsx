@@ -1,17 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import defaultUserPic from "../../assets/images/pic-user-default.png"
 import DisplaySearchResults from "../side/Search/DisplaySearchResults";
-const Search = ({token, displayAlbum, displayPlaylist}) => {
+import { similarity } from "../../utilityFunctions";
+import DisplaySearchItem from "../side/Search/DisplaySearchItem";
+const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
     const [searchKey, setSearchKey] = useState("");
     const [resultsTracks, setResultsTracks] = useState([]);
     const [resultsArtists, setResultsArtists] = useState([]);
     const [resultsAlbums, setResultsAlbums] = useState([]);   
-    const [resultsPlaylists, setResultsPlaylists] = useState([]);   
+    const [resultsPlaylists, setResultsPlaylists] = useState([]);
+    const [resultsShows, setResultsShows] = useState([]);   
+    const [resultsEpisodes, setResultsEpisodes] = useState([]);   
     const [topResult, setTopResult] = useState({})
+    const [topResFunction, setTopResFunction] = useState(() => {})
+
     const itemDiv = useRef();
     const itemSvg = useRef();
 
-    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined)
+    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined && topResult.id != undefined)
        
 
     const  searchItems =  async () => {      
@@ -24,7 +31,7 @@ const Search = ({token, displayAlbum, displayPlaylist}) => {
                 limit: 4,
                 type: "album,artist,playlist,track,show,episode"
             }
-        })    
+        })   
         return data
     }
 
@@ -35,7 +42,10 @@ const Search = ({token, displayAlbum, displayPlaylist}) => {
             let artists = await data.artists;
             let albums = await data.albums;
             let playlists = await data.playlists;
-
+            let shows = await data.shows;
+            let episodes = await data.episodes;   
+            console.log(artists)         
+            
             setResultsPlaylists(playlists.items.map((list) => {
                return  {
                     name: list.name,     
@@ -71,19 +81,94 @@ const Search = ({token, displayAlbum, displayPlaylist}) => {
             setResultsArtists(artists.items.map((artist) => {
                 return {
                     name: artist.name,
-                    img: artist.images.length > 1 ?  artist.images[1].url
-                        : artist.images[0].url,
+                    img: (artist.images == undefined || artist.images.length == 0) ?
+
+                    defaultUserPic
+                    : 
+                    artist.images.length > 1 ?
+
+                    artist.images[1].url
+                    : 
+                    artist.images[0].url,                    
                     id: artist.id,
                     uri: artist.uri,
                 }
             }))
+            setResultsShows(shows.items.map((show) => {
+                return {
+                    name: show.name,     
+                     owner: show.publisher,                    
+                     img: show.images.length > 1 ?  show.images[1].url
+                        : show.images[0].url,                
+                     id: show.id,
+                     uri: show.uri,
+                }
+            }))
+            setResultsEpisodes(episodes.items.map((episode) => {
+                return {
+                    name: episode.name,     
+                    duration: episode.duration_ms,                
+                    img: episode.images.length > 1 ?  episode.images[1].url
+                        : episode.images[0].url,                
+                    id: episode.id,
+                    uri: episode.uri,
+                    date: episode.release_date
 
+                }
+            }))           
+            let topResults = [];
+            topResults.push({
+                type: "artists",
+                item: resultsArtists[0]
+            })
+            topResults.push({
+                type: "tracks",
+                item: resultsTracks[0]
+            })
+            topResults.push({
+                type: "albums",
+                item: resultsAlbums[0]
+            })
+            topResults.push({
+                type: "playlists",
+                item: resultsPlaylists[0]
+            })
+            topResults.push({
+                type: "podcasts",
+                item: resultsShows[0]
+            })
+            topResults.push({
+                type: "episodes",
+                item: resultsEpisodes[0]
+            })
+            let valid = new RegExp(`${searchKey.toLowerCase()}`)
 
+            let topRes = topResults.map((res) => {
+                return similarity(searchKey,res.item.name)
+            })
+            let topResultNum = topRes.indexOf(Math.max(...topRes));
+            let res = topResults[topResultNum];
+            if(res.type == "albums") {
+                setTopResFunction(displayAlbum);
+            }
+            else if(res.type == "playlists") {
+                setTopResFunction(displayPlaylist);
+            }
+            else if(res.type == "podcasts") {
+                setTopResFunction(displayShow);
+            }
+            else if(res.type == "episodes") {
+                setTopResFunction(displayEpisode);
+            }
+            else if(res.type  =="artist") {
+                setTopResFunction((num) => {
+                    console.log(num)
+                })
+            }
+            setTopResult(res);
         }
 
         setEverything();
-        console.log(resultsAlbums)
-        
     }, [searchKey])
     return(
         <div className="search">
@@ -109,21 +194,44 @@ const Search = ({token, displayAlbum, displayPlaylist}) => {
             <div className="search-results">
                 {(coond && searchKey != "") ? 
                 <>
-                
+                <div>
+                    <div>
+                        <h1>Top result</h1>
+                        <DisplaySearchItem 
+                                item={topResult.item} 
+                                type={topResult.type}
+                                func={topResFunction} 
+                        />
+                    </div>
+                </div>
                 <DisplaySearchResults 
                        array={resultsArtists} 
-                       type={"artist"}
-               />
+                       type={"artists"}
+                />      
                 <DisplaySearchResults 
                         array={resultsAlbums} 
-                        type={"album"}
+                        type={"albums"}
                         func={displayAlbum}
                 />
                 <DisplaySearchResults 
                         array={resultsPlaylists} 
-                        type={"playlist"}
+                        type={"playlists"}
                         func={displayPlaylist}
                 /> 
+                <DisplaySearchResults 
+                        array={resultsShows} 
+                        type={"podcasts"}
+                        func={displayShow}
+                />
+
+                <DisplaySearchResults 
+                        array={resultsEpisodes} 
+                        type={"episodes"}
+                        func={() => {
+
+                        }}
+                />
+                
                 
                 </>
                 

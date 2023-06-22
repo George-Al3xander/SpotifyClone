@@ -147,7 +147,7 @@ const Dashboard = ({code}) => {
             Authorization: `Bearer ${token}`,
           }
         })        
-        
+        let episodes = await getShowsEpisodes(token, data.id)
         let show = {
           name: data.name,     
                 owner: data.publisher,                    
@@ -302,6 +302,7 @@ const Dashboard = ({code}) => {
                           token={token}
                           displayAlbum={displayAlbum}
                           displayPlaylist={displayPlaylist}
+                          displayShow={displayShow}
             />}/>
           </Routes>          
         </div>

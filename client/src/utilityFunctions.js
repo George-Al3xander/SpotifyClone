@@ -249,7 +249,7 @@ export async function getShowsEpisodes(token, id) {
       : episode.images[0].url,                
       id: episode.id,
       uri: episode.uri,
-      data: episode.release_date,
+      date: episode.release_date,
       description: episode.description,
       isExplicit: episode.explicit,
       duration: episode.duration_ms
@@ -317,15 +317,64 @@ export function displayEpisodeDuration(millis) {
   seconds = seconds % 60;
   minutes = minutes % 60;
 
-  // 👇️ If you don't want to roll hours over, e.g. 24 to 00
-  // 👇️ comment (or remove) the line below
-  // commenting next line gets you `24:00:00` instead of `00:00:00`
-  // or `36:15:31` instead of `12:15:31`, etc.
   hours = hours % 24;
 
   return `${padTo2Digits(hours)}:${padTo2Digits(minutes)}:${padTo2Digits(
     seconds,
   )}`;
+}
+
+export function displayEpisodeDate (date) {
+    let today = new Date();
+    let episodeDate = new Date(date);    
+    if(episodeDate.getFullYear() != today.getFullYear()) {
+        return moment(date).format("MMM, YYYY")
+    }
+    else {
+        return moment(date).format("MMM, D")
+    }
+
+}
+
+function editDistance(s1, s2) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+
+  var costs = new Array();
+  for (var i = 0; i <= s1.length; i++) {
+    var lastValue = i;
+    for (var j = 0; j <= s2.length; j++) {
+      if (i == 0)
+        costs[j] = j;
+      else {
+        if (j > 0) {
+          var newValue = costs[j - 1];
+          if (s1.charAt(i - 1) != s2.charAt(j - 1))
+            newValue = Math.min(Math.min(newValue, lastValue),
+              costs[j]) + 1;
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0)
+      costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
+export function similarity(s1, s2) {
+  var longer = s1;
+  var shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  var longerLength = longer.length;
+  if (longerLength == 0) {
+    return 1.0;
+  }
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
 }
 
 

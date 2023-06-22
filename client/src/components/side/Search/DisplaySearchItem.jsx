@@ -1,18 +1,22 @@
 import React from "react";
+import { displayEpisodeDate } from "../../../utilityFunctions";
+import moment from "moment";
 
 const DisplaySearchItem = ({item, type, func}) => {
 
     return(
         <div onClick={() => {
             func(item.id);
-        }} className={"search-item"} >
+        }} className={"search-item"}
+            id={item.id}
+        >
             <div>
-            {type == "artist" ? <img  style={{borderRadius: "50%", aspectRatio: "1 / 1"}}  src={item.img} alt="" /> : <img  src={item.img} alt="" />}
+            {type == "artists" ? <img  style={{borderRadius: "50%", aspectRatio: "1 / 1"}}  src={item.img} alt="" /> : <img  src={item.img} alt="" />}
             </div> 
             <h1>{item.name}</h1>
 
             <h2>
-            {type == "album" ? 
+            {type == "albums" ? 
             
             item.owner.map((artist) => {
                 return <>
@@ -25,7 +29,12 @@ const DisplaySearchItem = ({item, type, func}) => {
             <div>{item.owner}</div>
             
             }
-            </h2>           
+            </h2>  
+            {type == "episodes" ? 
+            <h3>{displayEpisodeDate(item.date)} · {Math.floor(moment.duration(item.duration).asMinutes()) + " min"}</h3>
+            :
+            null
+            }         
         </div>
     )
 }

@@ -1,10 +1,13 @@
-import React, { useRef, useState } from "react";
-import DisplayEpisode from "./DisplayEpisode";
+import React, { useEffect, useRef, useState } from "react";
+import DisplayEpisode from "./DisplayChildrenEpisode";
 import { getShowsEpisodes } from "../../utilityFunctions";
 import axios from "axios";
 
-const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay, playStatus}) => {    
+const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay, playStatus}) => {   
     const [episodes, setEpisodes] = useState(show.episodes); 
+    useEffect(() => {
+        setEpisodes(show.episodes)
+    },[show])
     const [count, setCount] = useState(0); 
     const firstItem = useRef();
     console.log(show)
@@ -28,14 +31,11 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay
           }
         })
         
-        setEpisodes(
-        {
+        setEpisodes({
             items: episodesPrev,
             next: data.next,
             previous: data.previous
-        }
-        )  
-        
+        })  
         firstItem.current.focus();           
     }
 
@@ -59,14 +59,11 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay
           }
         })
         
-        setEpisodes(
-        {
+        setEpisodes({
             items: episodesNext,
             next: data.next,
             previous: data.previous
-        }
-        )  
-        console.log(firstItem.current) 
+        }) 
         firstItem.current.focus();  
     }
     
