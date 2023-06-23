@@ -11,6 +11,7 @@ import DisplayPlaylist from "../side/DisplayPlaylist";
 import { spotifyApi } from "react-spotify-web-playback";
 import DisplayAlbum from "../side/DisplayAlbum";
 import DisplayShow from "../side/DisplayShow";
+import DisplayParentEpisode from "../side/DisplayParentEpisode";
 
 
 
@@ -28,13 +29,15 @@ const Dashboard = ({code}) => {
   const [repeatStatus, setRepeatStatus] = useState(0);
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentEpisode, setCurrentEpisode] = useState("")
 
   
 
   const testFunction = async () => { 
-    let id = "7rrXnDyc70sfTcJqBO32lr"
-
-    displayShow(id); 
+    //spotify:show:4rOoJ6Egrf8K2IrywzwOMk
+    //"spotify:episode:5NnstGx7gYZ5hNgwlTULl6"
+    displayEpisode("5NnstGx7gYZ5hNgwlTULl6")
+    //console.log(await getEpisode("5NnstGx7gYZ5hNgwlTULl6"))
   }
   
   const displayAlbum = async (id) => {
@@ -83,7 +86,31 @@ const Dashboard = ({code}) => {
     }
     setCurrentPlay(show);
     navigate("/show")
+
+    setTimeout(async () => {
+      let showApi = await getShow(id);      
+      let showStorage = JSON.parse(localStorage.getItem(id));
+     
+      if(showApi.total != showStorage.total) {
+        localStorage.setItem(id, JSON.stringify(showApi)); 
+        setCurrentPlay(showApi);      
+        console.log('Here')   
+      }
+    },1)
     
+  }
+
+  const displayEpisode = async (id) => {
+    let episode;
+
+    if(localStorage.getItem(id) == null) {
+      episode = await getEpisode(id);
+      localStorage.setItem(id, JSON.stringify(episode))
+    } else {
+      episode =  JSON.parse(localStorage.getItem(id))
+    }
+    setCurrentPlay(episode);
+    navigate("/episode")
   }
  
     const getPlaylist = async (id) => {       
@@ -147,9 +174,9 @@ const Dashboard = ({code}) => {
             Authorization: `Bearer ${token}`,
           }
         })        
-        let episodes = await getShowsEpisodes(token, data.id)
+        let episodes = await getShowsEpisodes(token, data.id)        
         let show = {
-          name: data.name,     
+                name: data.name,     
                 owner: data.publisher,                    
                 img: data.images.length > 1 ?  data.images[1].url
                    : data.images[0].url,                
@@ -157,9 +184,35 @@ const Dashboard = ({code}) => {
                 uri: data.uri,
                 description: data.description,
                 isExplicit: data.explicit,
-                episodes: episodes
+                episodes: episodes,
+                total: data.total_episodes
         }        
         return show
+    }
+
+    const getEpisode = async (id) => {
+      const {data} = await axios.get(`https://api.spotify.com/v1/episodes/${id}` , {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
+      
+      return {
+        name: data.name,                              
+        img: data.images.length > 1 ?  data.images[1].url
+        : data.images[0].url,                
+        id: data.id,
+        uri: data.uri,
+        date: data.release_date,
+        description: data.description,
+        isExplicit: data.explicit,
+        duration: data.duration_ms,  
+        podcast: {
+          name: data.show.name,
+          id: data.show.id,
+          uri: data.show.uri,
+        }      
+      }
     }
    
     const clickTrack = async  (trackUri, thisListUri,num) => { 
@@ -187,7 +240,7 @@ const Dashboard = ({code}) => {
       } 
     }
 
-    const clickListPlay =  (uri) => {
+    const clickListPlay = (uri) => {
       if(currentPlay.uri == uri) {
           setClickStatus(true);
       }
@@ -196,7 +249,25 @@ const Dashboard = ({code}) => {
           setOffset(0);
           setClickStatus(true);
         }
-        
+    }
+
+    const clickEpisodePlay = async (episodeUri,showUri) => {
+      if(currentEpisode == episodeUri) {
+        if(clickStatus == false) {
+          setClickStatus(true);
+        } else {
+          setClickStatus(false);
+        }
+      }
+      else {
+        await spotifyApi.play(token, {
+          context_uri: showUri,
+          deviceId: currentDevice,          
+          uris: episodeUri
+          })
+      }
+      setCurrentPlayUri(showUri);
+      setCurrentEpisode(episodeUri);
     }
 
     const shuffle = () => {
@@ -236,8 +307,9 @@ const Dashboard = ({code}) => {
         }
       })
 
-      console.log(data)
+      
     }
+    
 
     return (
       <>      
@@ -291,12 +363,34 @@ const Dashboard = ({code}) => {
             element={<DisplayShow 
                           token={token}
                           show={currentPlay}
-                          currentTrack={currentTrack}  
+                          currentTrack={currentEpisode}  
                           currentPlayUri={currentPlayUri}
                           setCurrentPlayUri={setCurrentPlayUri}
                           setCurrentPlay={setCurrentPlay}  
                           playStatus={clickStatus}
+                          displayEpisode={displayEpisode}
+                          setPlayStatus={() => {
+                            spotifyApi.pause(token,currentDevice);
+                          }} 
+                          clickPlay={clickEpisodePlay}
             />}/>
+            <Route path="/episode" 
+            element={<DisplayParentEpisode 
+                          token={token}
+                          episode={currentPlay}
+                          currentTrack={currentEpisode}  
+                          currentPlayUri={currentPlayUri}
+                          setCurrentPlayUri={setCurrentPlayUri}
+                          setCurrentPlay={setCurrentPlay}  
+                          playStatus={clickStatus} 
+                          clickPlay={clickEpisodePlay}
+                          displayShow={displayShow}
+                          setPlayStatus={() => {
+                            spotifyApi.pause(token,currentDevice);
+                          }}
+
+            />}            
+            />
             <Route path="/search"  
             element={<Search 
                           token={token}

@@ -241,8 +241,14 @@ export async function getShowsEpisodes(token, id) {
       headers: {
             Authorization: `Bearer ${token}`
     },            
-  }) 
-  let episodes = data.items.map((episode) => {
+  });
+  let podcast = await axios.get(`https://api.spotify.com/v1/shows/${id}`, {
+    headers: {
+          Authorization: `Bearer ${token}`
+  },            
+  });
+  podcast = podcast.data.name  
+  let episodes = data.items.map((episode) => {       
     return {
       name: episode.name,                              
       img: episode.images.length > 1 ?  episode.images[1].url
@@ -252,7 +258,8 @@ export async function getShowsEpisodes(token, id) {
       date: episode.release_date,
       description: episode.description,
       isExplicit: episode.explicit,
-      duration: episode.duration_ms
+      duration: episode.duration_ms, 
+      podcast: podcast
     }
   })
   

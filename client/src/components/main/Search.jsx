@@ -13,12 +13,12 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
     const [resultsShows, setResultsShows] = useState([]);   
     const [resultsEpisodes, setResultsEpisodes] = useState([]);   
     const [topResult, setTopResult] = useState({})
-    const [topResFunction, setTopResFunction] = useState(() => {})
+    let topResFunction;
 
     const itemDiv = useRef();
     const itemSvg = useRef();
 
-    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined && topResult.id != undefined)
+    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined && topResult.item != undefined) 
        
 
     const  searchItems =  async () => {      
@@ -44,14 +44,21 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
             let playlists = await data.playlists;
             let shows = await data.shows;
             let episodes = await data.episodes;   
-            console.log(artists)         
+                    
             
             setResultsPlaylists(playlists.items.map((list) => {
                return  {
                     name: list.name,     
                     owner: list.owner.display_name,                    
-                    img: list.images.length > 1 ?  list.images[1].url
-                       : list.images[0].url,                
+                    img: (list.images == undefined || list.images.length == 0) ?
+
+                    defaultUserPic
+                    : 
+                    list.images.length > 1 ?
+
+                    list.images[1].url
+                    : 
+                    list.images[0].url,                 
                     id: list.id,
                     uri: list.uri,
                  }
@@ -72,8 +79,15 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                 return  {
                      name: list.name,     
                      owner: list.artists,                    
-                     img: list.images.length > 1 ?  list.images[1].url
-                        : list.images[0].url,                
+                     img: (list.images == undefined || list.images.length == 0) ?
+
+                     defaultUserPic
+                     : 
+                     list.images.length > 1 ?
+ 
+                     list.images[1].url
+                     : 
+                     list.images[0].url,                
                      id: list.id,
                      uri: list.uri,
                   }
@@ -143,28 +157,12 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
             })
             let valid = new RegExp(`${searchKey.toLowerCase()}`)
 
-            let topRes = topResults.map((res) => {
-                return similarity(searchKey,res.item.name)
+            let topRes = topResults.map((result) => {
+                return similarity(searchKey,result.item.name)
             })
             let topResultNum = topRes.indexOf(Math.max(...topRes));
             let res = topResults[topResultNum];
-            if(res.type == "albums") {
-                setTopResFunction(displayAlbum);
-            }
-            else if(res.type == "playlists") {
-                setTopResFunction(displayPlaylist);
-            }
-            else if(res.type == "podcasts") {
-                setTopResFunction(displayShow);
-            }
-            else if(res.type == "episodes") {
-                setTopResFunction(displayEpisode);
-            }
-            else if(res.type  =="artist") {
-                setTopResFunction((num) => {
-                    console.log(num)
-                })
-            }
+            
             setTopResult(res);
         }
 
@@ -198,9 +196,25 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                     <div>
                         <h1>Top result</h1>
                         <DisplaySearchItem 
-                                item={topResult.item} 
-                                type={topResult.type}
-                                func={topResFunction} 
+                            item={topResult.item} 
+                            type={topResult.type}
+                            func={(id) => {                                
+                                if(topResult.type == "playlists") {
+                                    displayPlaylist(id)
+                                }
+                                else if(topResult.type == "albums") {
+                                    displayAlbum(id)
+                                }
+                                else if(topResult.type == "podcasts") {
+                                    displayShow(id);
+                                }
+                                else if(topResult.type == "episode") {
+
+                                }
+                                else {
+                                    console.log(id)
+                                }
+                            }} 
                         />
                     </div>
                 </div>

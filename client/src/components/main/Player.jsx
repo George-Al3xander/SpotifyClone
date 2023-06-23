@@ -22,6 +22,7 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
         if(repeatStatus != repeatTypes.indexOf(repeatState)) {            
             setRepeatStatus(repeatTypes.indexOf(repeatState))            
         }  
+        console.log(state)
         setClickStatus(state.isPlaying);
         setCurrentTrack(state.track.uri);
         localStorage.setItem("recentTrack", state.track.uri)            

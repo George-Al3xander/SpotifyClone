@@ -138,43 +138,101 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus,
     }
 
     const clickPlaylistNavBtn = async () => {
-        setCurrentDisplay(await getPlaylists());
-        setFullDisplay(await getPlaylists());   
+        let playlists;
+        
+        if(localStorage.getItem("sidemenu_playlists") == null) {
+          playlists = await getPlaylists();
+          localStorage.setItem("sidemenu_playlists", JSON.stringify(playlists))
+        } else {
+          playlists =  JSON.parse(localStorage.getItem("sidemenu_playlists"))
+        }
+
+        setCurrentDisplay(playlists);
+        setFullDisplay(playlists);        
+        
         setIsClicked(true);
-        setCurrentDisplayType("playlist")
-        // setTimeout(async () => {
-        //     let tempArray = fullDisplay;
-        //     let savedTracks = await getSavedTracks();
-        //     tempArray = tempArray.push(savedTracks);
-        //     // setFullDisplay(tempArray); 
-        //     // setCurrentDisplay(tempArray);  
-        //     console.log(tempArray)           
-        // },1);  
+        setCurrentDisplayType("playlist");
+        setTimeout(async () => {
+            let playlistsApi = await getPlaylists();      
+            let playlistsStorage = JSON.parse(localStorage.getItem("sidemenu_playlists"))
+            if(playlistsApi.length != playlistsStorage.length) {
+              localStorage.setItem("sidemenu_playlists", JSON.stringify(playlistsApi));
+            }
+        })
+         
     }
     
 
     const clickAlbumNavBtn = async () => {
-        setCurrentDisplay(await getAlbums());
-        setFullDisplay(await getAlbums());        
+        let albums;
+        
+        if(localStorage.getItem("sidemenu_albums") == null) {
+          albums = await getAlbums();
+          localStorage.setItem("sidemenu_albums", JSON.stringify(albums))
+        } else {
+          albums =  JSON.parse(localStorage.getItem("sidemenu_albums"))
+        }
+
+        setCurrentDisplay(albums);
+        setFullDisplay(albums);        
         
         setIsClicked(true);
         setCurrentDisplayType("album");
+        setTimeout(async () => {
+            let albumsApi = await getAlbums();      
+            let albumsStorage = JSON.parse(localStorage.getItem("sidemenu_albums"))
+            if(albumsApi.length != albumsStorage.length) {
+              localStorage.setItem("sidemenu_albums", JSON.stringify(albumsApi));
+            }
+        })
     }
 
     const clickArtistsNavBtn = async () => {
-        setCurrentDisplay(await getArtists());
-        setFullDisplay(await getArtists());   
+        let artists;
+        
+        if(localStorage.getItem("sidemenu_artists") == null) {
+          artists = await getArtists();
+          localStorage.setItem("sidemenu_artists", JSON.stringify(artists))
+        } else {
+          artists =  JSON.parse(localStorage.getItem("sidemenu_artists"))
+        }
 
-        setIsClicked(true)
-        setCurrentDisplayType("artist")
+        setCurrentDisplay(artists);
+        setFullDisplay(artists);        
+        
+        setIsClicked(true);
+        setCurrentDisplayType("artist");
+        setTimeout(async () => {
+            let artistsApi = await getArtists();      
+            let artistsStorage = JSON.parse(localStorage.getItem("sidemenu_artists"))
+            if(artistsApi.length != artistsStorage.length) {
+              localStorage.setItem("sidemenu_artists", JSON.stringify(artistsApi));
+            }
+        })
     }
 
     const clickShowsNavBtn = async () => {
-        setCurrentDisplay(await getShows())
-        setFullDisplay(await getShows());
+        let shows;
+        
+        if(localStorage.getItem("sidemenu_shows") == null) {
+          shows = await getShows();
+          localStorage.setItem("sidemenu_shows", JSON.stringify(shows))
+        } else {
+          shows =  JSON.parse(localStorage.getItem("sidemenu_shows"))
+        }
 
+        setCurrentDisplay(shows);
+        setFullDisplay(shows);        
+        
         setIsClicked(true);
         setCurrentDisplayType("Podcast & Shows")
+        setTimeout(async () => {
+            let showsApi = await getShows();      
+            let showsStorage = JSON.parse(localStorage.getItem("sidemenu_shows"))
+            if(showsApi.length != showsStorage.length) {
+              localStorage.setItem("sidemenu_shows", JSON.stringify(showsApi));
+            }
+        })
     }
 
     const cancelClick = () => {

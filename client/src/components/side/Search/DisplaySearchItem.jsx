@@ -2,8 +2,7 @@ import React from "react";
 import { displayEpisodeDate } from "../../../utilityFunctions";
 import moment from "moment";
 
-const DisplaySearchItem = ({item, type, func}) => {
-
+const DisplaySearchItem = ({item, type, func}) => {    
     return(
         <div onClick={() => {
             func(item.id);

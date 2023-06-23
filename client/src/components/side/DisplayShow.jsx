@@ -3,14 +3,14 @@ import DisplayEpisode from "./DisplayChildrenEpisode";
 import { getShowsEpisodes } from "../../utilityFunctions";
 import axios from "axios";
 
-const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay, playStatus}) => {   
+const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode}) => {   
     const [episodes, setEpisodes] = useState(show.episodes); 
     useEffect(() => {
         setEpisodes(show.episodes)
     },[show])
+    console.log(episodes)
     const [count, setCount] = useState(0); 
-    const firstItem = useRef();
-    console.log(show)
+    const firstItem = useRef();    
     const previousEpisodes = async () => {
         const {data} = await axios.get(episodes.previous, {
             headers: {
@@ -81,15 +81,7 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay
                        <h2>{show.owner}</h2>    
                         
                     </div>
-                </div>   
-
-                {/* Delete */}
-                <div>
-                   {count}
-                   <button onClick={() => {
-                    setCount(prev => prev + 1);
-                   }}>Click</button> 
-                </div>           
+                </div>    
             </div>
 
             <div>
@@ -104,6 +96,11 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri,  setCurrentPlay
                           playStatus={playStatus} 
                           episode={episode}
                           firstItem={firstItem}
+                          setPlayStatus={setPlayStatus}
+                          clickPlay={clickPlay}
+                          showUri={show.uri}
+                          currentTrack={currentTrack}
+                          displayEpisode={displayEpisode}
                           num={episodes.items.indexOf(episode)}
                           />
                 })}
