@@ -21,12 +21,14 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
         setCurrentDevice(currentDeviceId); 
         if(repeatStatus != repeatTypes.indexOf(repeatState)) {            
             setRepeatStatus(repeatTypes.indexOf(repeatState))            
-        }  
-        console.log(state)
+        } 
         setClickStatus(state.isPlaying);
         setCurrentTrack(state.track.uri);
-        localStorage.setItem("recentTrack", state.track.uri)            
-        document.body.style.paddingBottom = `${item.current.ref.current.offsetHeight} px`;        
+        if(state.track.artists.length > 0) {
+            localStorage.setItem("recentTrack", state.track.uri) 
+        }           
+        document.body.style.paddingBottom = `${item.current.ref.current.offsetHeight} px`;   
+        console.log(state)     
     }}  
     uris={uri} 
     components={{

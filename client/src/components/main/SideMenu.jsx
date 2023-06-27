@@ -104,6 +104,7 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus,
                 : artist.images[0].url,                
                 id: artist.id,
                 uri: artist.uri,
+                link: artist.external_urls.spotify
             }
         });
         
@@ -286,6 +287,9 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus,
         }
     }
     
+    const artistClick = (smh) => {
+        console.log(smh)
+    }
     
     return(
         <div className="side-menu">
@@ -331,14 +335,12 @@ const SideMenu = ({playlistClick, albumClick, token,currentPlayUri, clickStatus,
                     
                     :
                     <DisplaySideMenuContent 
-                        functions={[playlistClick,albumClick,showClick]} 
+                        functions={[playlistClick,albumClick,showClick,artistClick]} 
                         type={currentDisplayType} 
                         array={currentDisplay}
                         currentPlayUri={currentPlayUri}
                         clickStatus={clickStatus}
-                        />}
-                    {/* / Component/ */}
-                    <button onClick={testFunction}>Click me</button>
+                        />}                    
             </div>           
         </div>
     )

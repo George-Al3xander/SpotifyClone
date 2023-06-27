@@ -11,7 +11,12 @@ const DisplaySideMenuItem = ({type, item, currentPlayUri, clickStatus,func}) => 
                     await func(item.id);
                 }} 
                 onClick={async () => {
-                    await func(item.id);
+                    if(type != "artist") {
+                        await func(item.id);
+                    }
+                    else {
+                        window.open(item.link)
+                    }
                 }} 
                 id={item.id}>
                 {type == "artist" ? <img  style={{borderRadius: "50%", aspectRatio: "1 / 1"}}  src={item.img} alt="" /> : <img  src={item.img} alt="" />}

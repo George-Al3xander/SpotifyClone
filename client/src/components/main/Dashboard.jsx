@@ -25,20 +25,55 @@ const Dashboard = ({code}) => {
   const [clickStatus, setClickStatus] = useState(false); 
   const [currentDevice, setCurrentDevice] = useState("");
   const [shuffleStatus, setShuffleStatus] = useState(false);
-  const repeatTypes = ['off', 'context' , 'track' ]
+  const repeatTypes = ['off', 'context', 'track' ]
   const [repeatStatus, setRepeatStatus] = useState(0);
   const [offset, setOffset] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentEpisode, setCurrentEpisode] = useState("")
-
-  
+  const [currentEpisode, setCurrentEpisode] = useState("");
 
   const testFunction = async () => { 
+    //total - 2146
     //spotify:show:4rOoJ6Egrf8K2IrywzwOMk
     //"spotify:episode:5NnstGx7gYZ5hNgwlTULl6"
-    displayEpisode("5NnstGx7gYZ5hNgwlTULl6")
-    //console.log(await getEpisode("5NnstGx7gYZ5hNgwlTULl6"))
-  }
+    //"spotify:track:1qkih5UIqzvxdrse2YCSPQ"
+    // setCurrentPlayUri("spotify:episode:5NnstGx7gYZ5hNgwlTULl6");
+    // ////console.log(await getEpisode("5NnstGx7gYZ5hNgwlTULl6"))
+    // setOffset(0);
+    // setClickStatus(true);
+    //"49cSxbZ1BWJJZPiCAjoOdv"
+    // let id = "49cSxbZ1BWJJZPiCAjoOdv";
+    // const {data} = await axios.get(`https://api.spotify.com/v1/episodes/${id}`, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`
+    //     },        
+    //   });
+
+    //   console.log(data);
+    let uri = "spotify:episode:5NnstGx7gYZ5hNgwlTULl6";
+
+    // await axios.post(`https://api.spotify.com/v1/me/player/queue`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token}`
+    //     },   
+    //     params: {
+    //       uri: uri,         
+    //     }             
+    //   });
+
+    const url = `https://api.spotify.com/v1/me/player/queue?uri=${uri}`
+    try {
+      await axios.post(url, null,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+      
+      setClickStatus(true);
+      
+    } catch(err) {
+      console.log(err)
+    }
+  } 
   
   const displayAlbum = async (id) => {
     setIsLoading(true);
@@ -216,7 +251,6 @@ const Dashboard = ({code}) => {
     }
    
     const clickTrack = async  (trackUri, thisListUri,num) => { 
-      let list = thisListUri;
       if(currentTrack == trackUri && currentPlayUri == thisListUri) {
           if(clickStatus == false) {
               setClickStatus(true);
@@ -251,24 +285,25 @@ const Dashboard = ({code}) => {
         }
     }
 
-    const clickEpisodePlay = async (episodeUri,showUri) => {
+    const clickEpisodePlay = async (episodeUri,showUri, num) => {
       if(currentEpisode == episodeUri) {
-        if(clickStatus == false) {
-          setClickStatus(true);
-        } else {
-          setClickStatus(false);
-        }
+            if(clickStatus == false) {
+              setClickStatus(true);
+            } else {
+              setClickStatus(false);
+            }
       }
       else {
-        await spotifyApi.play(token, {
-          context_uri: showUri,
-          deviceId: currentDevice,          
-          uris: episodeUri
+          spotifyApi.play(token, {
+            context_uri: showUri,
+            deviceId: currentDevice,
+            offset: num,
+            uris: showUri
           })
+      
       }
-      setCurrentPlayUri(showUri);
       setCurrentEpisode(episodeUri);
-    }
+    } 
 
     const shuffle = () => {
       if(shuffleStatus == false) {
@@ -312,9 +347,10 @@ const Dashboard = ({code}) => {
     
 
     return (
-      <>      
-      <button onClick={testFunction}>Click that mofo</button>
+      <>   
       <main className="container">
+      <button onClick={testFunction}>Click me</button>
+
         <SideMenu 
             token={token} 
             playlistClick={displayPlaylist} 
@@ -373,6 +409,8 @@ const Dashboard = ({code}) => {
                             spotifyApi.pause(token,currentDevice);
                           }} 
                           clickPlay={clickEpisodePlay}
+                          setOffset={setOffset}
+
             />}/>
             <Route path="/episode" 
             element={<DisplayParentEpisode 
@@ -383,11 +421,21 @@ const Dashboard = ({code}) => {
                           setCurrentPlayUri={setCurrentPlayUri}
                           setCurrentPlay={setCurrentPlay}  
                           playStatus={clickStatus} 
-                          clickPlay={clickEpisodePlay}
-                          displayShow={displayShow}
-                          setPlayStatus={() => {
-                            spotifyApi.pause(token,currentDevice);
+                          clickPlay = {(trackUri) => {
+                            if(currentEpisode == trackUri) {
+                              if(clickStatus == false) {
+                                setClickStatus(true);
+                              } else {
+                                setClickStatus(false);
+                              }
+                            } else {
+                              setCurrentPlayUri(trackUri);
+                              setOffset(0);
+                              setClickStatus(true);
+                            }
                           }}
+                          displayShow={displayShow}
+                          
 
             />}            
             />
@@ -397,6 +445,28 @@ const Dashboard = ({code}) => {
                           displayAlbum={displayAlbum}
                           displayPlaylist={displayPlaylist}
                           displayShow={displayShow}
+                          displayEpisode={displayEpisode}
+                          currentTrack={currentTrack}  
+                          clickTrack={(trackUri) => {
+                            if(currentTrack == trackUri) {
+                              if(clickStatus == false) {
+                                setClickStatus(true);
+                              } else {
+                                setClickStatus(false);
+                              }
+                            } else {
+                              setCurrentPlayUri(trackUri);
+                              setOffset(0);
+                              setClickStatus(true);
+                            }
+                          }} 
+                          playStatus={clickStatus}
+                          currentPlay={currentPlay}
+                          setCurrentPlay={setCurrentPlay}
+                          currentPlayUri={currentPlayUri}
+                          
+                          
+                            
             />}/>
           </Routes>          
         </div>

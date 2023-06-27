@@ -5,7 +5,7 @@ import loadingGif from "../../assets/images/loading.gif"
 const DisplayPlaylist = (props) => {
     let playlist = props.playlist;
     let token = props.token;    
-    let isLoading = props.isLoading;
+    let isLoading = props.isLoading;    
     return(
             isLoading == true ? 
 

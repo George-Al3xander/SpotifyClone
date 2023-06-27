@@ -5,7 +5,11 @@ import moment from "moment";
 const DisplaySearchItem = ({item, type, func}) => {    
     return(
         <div onClick={() => {
-            func(item.id);
+            if(type != "artists") {
+                func(item.id);
+            } else {
+                func(item.link);                
+            }
         }} className={"search-item"}
             id={item.id}
         >

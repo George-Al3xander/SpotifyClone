@@ -3,13 +3,17 @@ import DisplayEpisode from "./DisplayChildrenEpisode";
 import { getShowsEpisodes } from "../../utilityFunctions";
 import axios from "axios";
 
-const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode}) => {   
+const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode,}) => {   
+    const [offset, setOffset] = useState(show.total-1);
     const [episodes, setEpisodes] = useState(show.episodes); 
+    console.log(offset)
     useEffect(() => {
         setEpisodes(show.episodes)
+        setOffset(show.total-1);
     },[show])
-    console.log(episodes)
-    const [count, setCount] = useState(0); 
+    
+   console.log(episodes)
+   
     const firstItem = useRef();    
     const previousEpisodes = async () => {
         const {data} = await axios.get(episodes.previous, {
@@ -36,6 +40,7 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setP
             next: data.next,
             previous: data.previous
         })  
+        setOffset((prev) => prev + 20);
         firstItem.current.focus();           
     }
 
@@ -58,7 +63,7 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setP
             duration: episode.duration_ms
           }
         })
-        
+        setOffset((prev) => prev - 20);
         setEpisodes({
             items: episodesNext,
             next: data.next,
@@ -78,10 +83,13 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setP
                     <h2>Show</h2>
                     <h1>{show.name}</h1>                    
                     <div className="list-top-main-info">
-                       <h2>{show.owner}</h2>    
-                        
+                       <h2>{show.owner}</h2> 
                     </div>
                 </div>    
+            </div>
+            <div className="show-description">
+                <h1>About</h1>
+                <p>{show.description}</p>
             </div>
 
             <div>
@@ -101,7 +109,9 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setP
                           showUri={show.uri}
                           currentTrack={currentTrack}
                           displayEpisode={displayEpisode}
-                          num={episodes.items.indexOf(episode)}
+                          offset={offset}
+                          index={episodes.items.indexOf(episode)
+                        }
                           />
                 })}
                 {episodes.next != null ? 

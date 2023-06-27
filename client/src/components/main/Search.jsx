@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import defaultUserPic from "../../assets/images/pic-user-default.png"
 import DisplaySearchResults from "../side/Search/DisplaySearchResults";
-import { similarity } from "../../utilityFunctions";
+import {getFollowedStatus, similarity } from "../../utilityFunctions";
 import DisplaySearchItem from "../side/Search/DisplaySearchItem";
-const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
+import DisplayTracks from "../side/DisplayTracks";
+const Search = ({token, displayAlbum, displayPlaylist, displayShow, displayEpisode, currentTrack, clickTrack, playStatus}) => {    
     const [searchKey, setSearchKey] = useState("");
     const [resultsTracks, setResultsTracks] = useState([]);
     const [resultsArtists, setResultsArtists] = useState([]);
@@ -12,13 +13,12 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
     const [resultsPlaylists, setResultsPlaylists] = useState([]);
     const [resultsShows, setResultsShows] = useState([]);   
     const [resultsEpisodes, setResultsEpisodes] = useState([]);   
-    const [topResult, setTopResult] = useState({})
-    let topResFunction;
+    const [topResult, setTopResult] = useState({});    
 
     const itemDiv = useRef();
     const itemSvg = useRef();
 
-    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined && topResult.item != undefined) 
+    let coond = (resultsAlbums != undefined && resultsArtists != undefined && resultsPlaylists != undefined && resultsTracks != undefined) 
        
 
     const  searchItems =  async () => {      
@@ -34,6 +34,8 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
         })   
         return data
     }
+
+
 
     useEffect(() => {        
         const setEverything =  async () => {
@@ -64,17 +66,36 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                  }
             }))
 
-            setResultsTracks(tracks.items.map((track) => {
-                return  {
-                     name: track.name,     
-                     owner: track.artists,                    
-                     img: track.album.images.length > 1 ?  track.album.images[2].url
-                        : track.album.images[0].url,                
-                     id: track.id,
-                     uri: track.uri,
-                  }
-             }))
+            let allTracksId = tracks.items.map((track) => {
+                return track.id
+            }); 
 
+            let isFollowed = await axios.get("https://api.spotify.com/v1/me/tracks/contains", {
+                headers: {
+                Authorization: `Bearer ${token}`
+                },   
+                params: {
+                ids: allTracksId.toString()
+                }             
+            });
+            isFollowed = isFollowed.data; 
+            setResultsTracks(
+                tracks.items.map((song) => {                    
+                return  {
+                    name: song.name,
+                    uri: song.uri, 
+                    id: song.id, 
+                    isExplicit: song.explicit, 
+                    img: song.album.images.length > 1 ? song.album.images[2].url : song.album.images[0].url,
+                    album: {
+                        name: song.album.name,
+                        uri: song.album.uri,
+                    },
+                    duration: song.duration_ms,
+                    artists: song.artists,
+                    isFollowed: isFollowed[tracks.items.indexOf(song)]
+                }
+            }));
             setResultsAlbums(albums.items.map((list) => {
                 return  {
                      name: list.name,     
@@ -91,7 +112,7 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                      id: list.id,
                      uri: list.uri,
                   }
-             })) 
+             })) ;            
             setResultsArtists(artists.items.map((artist) => {
                 return {
                     name: artist.name,
@@ -106,6 +127,7 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                     artist.images[0].url,                    
                     id: artist.id,
                     uri: artist.uri,
+                    link:  artist.external_urls.spotify
                 }
             }))
             setResultsShows(shows.items.map((show) => {
@@ -134,11 +156,7 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
             topResults.push({
                 type: "artists",
                 item: resultsArtists[0]
-            })
-            topResults.push({
-                type: "tracks",
-                item: resultsTracks[0]
-            })
+            })            
             topResults.push({
                 type: "albums",
                 item: resultsAlbums[0]
@@ -156,18 +174,25 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                 item: resultsEpisodes[0]
             })
             let valid = new RegExp(`${searchKey.toLowerCase()}`)
-
+            topResults =  topResults.filter((result) => {
+                return result.item != undefined
+               
+            })
             let topRes = topResults.map((result) => {
                 return similarity(searchKey,result.item.name)
             })
             let topResultNum = topRes.indexOf(Math.max(...topRes));
-            let res = topResults[topResultNum];
-            
-            setTopResult(res);
+            let res = topResults[topResultNum];           
+            if(coond) {
+                setTopResult(res);
+            }
         }
 
-        setEverything();
-    }, [searchKey])
+        if(searchKey != "" ) {
+            setEverything();
+        }
+    }, [searchKey]);
+    
     return(
         <div className="search">
             <div ref={itemDiv} className="search-field">
@@ -190,11 +215,12 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
             </div>
 
             <div className="search-results">
-                {(coond && searchKey != "") ? 
+                {(searchKey != "" && topResult != undefined && Object.keys(topResult).length !== 0 && resultsTracks != undefined) ? 
                 <>
                 <div>
-                    <div>
-                        <h1>Top result</h1>
+                    <div  className="top-results">
+                        <div>
+                    <h1 style={{textTransform: "capitalize", fontSize: "var(--fs-big)"}}>Top result</h1>
                         <DisplaySearchItem 
                             item={topResult.item} 
                             type={topResult.type}
@@ -216,43 +242,76 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow}) => {
                                 }
                             }} 
                         />
+                        </div>
+                        {(resultsTracks != undefined && resultsTracks.length > 0) ? 
+                        <div>
+                            <DisplayTracks 
+                                token={token} 
+                                type={"search"} 
+                                currentTrack={currentTrack}
+                                clickTrack={clickTrack}                         
+                                array={resultsTracks}
+                                playStatus={playStatus}
+                                setResultsTracks={setResultsTracks}
+                                resultsTracks={resultsTracks}
+                            />
+                        </div>
+
+                        :
+
+                        null                    
+                        }
                     </div>
                 </div>
+                {(resultsArtists.length > 0  && resultsArtists != undefined) ? 
                 <DisplaySearchResults 
-                       array={resultsArtists} 
-                       type={"artists"}
-                />      
+                    array={resultsArtists} 
+                    type={"artists"}  
+                    func={(link) => {
+                        window.open(link)
+                    }}                  
+                />                
+                : 
+                null}
+                      
+                {(resultsAlbums.length > 0  && resultsAlbums != undefined) ? 
                 <DisplaySearchResults 
-                        array={resultsAlbums} 
-                        type={"albums"}
-                        func={displayAlbum}
-                />
+                    array={resultsAlbums} 
+                    type={"albums"}
+                    func={displayAlbum}
+                />                
+                : 
+                null}
+                {(resultsPlaylists.length > 0  && resultsPlaylists != undefined) ? 
                 <DisplaySearchResults 
-                        array={resultsPlaylists} 
-                        type={"playlists"}
-                        func={displayPlaylist}
-                /> 
+                    array={resultsPlaylists} 
+                    type={"playlists"}
+                    func={displayPlaylist}
+                />                
+                : 
+                null} 
+                {(resultsShows.length > 0  && resultsShows != undefined) ? 
                 <DisplaySearchResults 
-                        array={resultsShows} 
-                        type={"podcasts"}
-                        func={displayShow}
+                    array={resultsShows} 
+                    type={"podcasts"}
+                    func={displayShow}
+                />                
+                : 
+                null}
+
+
+                {(resultsArtists.length > 0  && resultsArtists != undefined) ? 
+                <DisplaySearchResults 
+                    array={resultsEpisodes} 
+                    type={"episodes"}
+                    func={displayEpisode}
                 />
 
-                <DisplaySearchResults 
-                        array={resultsEpisodes} 
-                        type={"episodes"}
-                        func={() => {
+                :
 
-                        }}
-                />
-                
-                
+                null}                
                 </>
-                
-                
                 :null
-
-
                 }                
             </div>
         </div>
