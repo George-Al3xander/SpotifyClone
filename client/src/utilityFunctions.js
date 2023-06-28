@@ -247,7 +247,8 @@ export async function getShowsEpisodes(token, id) {
     headers: {
           Authorization: `Bearer ${token}`
   },            
-  });
+  });  
+  let total = podcast.data.total_episodes;
   podcast = podcast.data.name  
   let episodes = data.items.map((episode) => {       
     return {
@@ -260,7 +261,8 @@ export async function getShowsEpisodes(token, id) {
       description: episode.description,
       isExplicit: episode.explicit,
       duration: episode.duration_ms, 
-      podcast: podcast
+      podcast: podcast,
+      podcast_total: total
     }
   })
   

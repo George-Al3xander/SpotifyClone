@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 const Home = () => {
     return(
         <div className="home">
-            <h1>Home</h1>
-            <Link to="/search"> Go to search</Link>
+            <h1>Sorry, no home page :(</h1>
         </div>
     )
 }

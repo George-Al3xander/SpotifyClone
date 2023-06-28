@@ -6,6 +6,7 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
   const repeatTypes = ['off', 'context' , 'track' ] 
   const item = useRef();  
     return <SpotifyPlayer 
+    showSaveIcon={true}
     ref={item} 
     play={clickStatus}     
     hideAttribution={true}
@@ -36,7 +37,7 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
         rightButton: <RepeatBtn status={repeatStatus} repeat={repeat} />
     }}
     styles={{
-        activeColor: "white",
+        activeColor: "var(--clr-primary)",
         trackNameColor: "white",
         trackArtistColor: "grey",
         color: "white",

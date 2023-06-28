@@ -6,13 +6,13 @@ import axios from "axios";
 const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode,}) => {   
     const [offset, setOffset] = useState(show.total-1);
     const [episodes, setEpisodes] = useState(show.episodes); 
-    console.log(offset)
+   
     useEffect(() => {
         setEpisodes(show.episodes)
         setOffset(show.total-1);
     },[show])
     
-   console.log(episodes)
+   
    
     const firstItem = useRef();    
     const previousEpisodes = async () => {

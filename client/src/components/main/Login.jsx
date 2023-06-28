@@ -5,8 +5,11 @@ const AUTH_URL = "https://accounts.spotify.com/authorize?client_id=a104992a9a514
 
  const Login = () => {
     return (
-        <div>
-         <a href={AUTH_URL}>Login to Spotify</a>  
+        <div className="login">
+            <div>
+                <h1>Welcome to <span>Clonify</span></h1>
+                <a href={AUTH_URL}>Click to login to your Spotify accout!</a>
+            </div>  
         </div>
     )
 }

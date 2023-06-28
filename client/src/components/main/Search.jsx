@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import defaultUserPic from "../../assets/images/pic-user-default.png"
 import DisplaySearchResults from "../side/Search/DisplaySearchResults";
-import {getFollowedStatus, similarity } from "../../utilityFunctions";
+import {similarity } from "../../utilityFunctions";
 import DisplaySearchItem from "../side/Search/DisplaySearchItem";
 import DisplayTracks from "../side/DisplayTracks";
 const Search = ({token, displayAlbum, displayPlaylist, displayShow, displayEpisode, currentTrack, clickTrack, playStatus}) => {    
