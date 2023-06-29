@@ -313,6 +313,7 @@ const Dashboard = ({code}) => {
           })
       
       }
+      setCurrentPlayUri(showUri);
       setCurrentEpisode(episodeUri);
     } 
 
@@ -403,8 +404,6 @@ const Dashboard = ({code}) => {
     return (
       <>   
       <main className="container">
-      {/* <button onClick={testFunction}>Click me</button> */}
-
         <SideMenu 
             token={token} 
             playlistClick={displayPlaylist} 

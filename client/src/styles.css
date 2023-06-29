@@ -88,6 +88,8 @@ body svg {
     overflow: scroll;  
 }
 
+
+
 .side-menu {
     flex-basis: 30%;
     max-width: 30%;
@@ -100,6 +102,97 @@ body svg {
     border-radius: 10px;
 }
 
+.side-menu-top-nav > * > div {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: 1rem;
+    opacity: .7;
+}
+
+
+.side-menu-content h1 {
+    font-size: var(--fs-big);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.side-menu-content-nav {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    
+}
+
+.side-menu-content-nav li {
+    background-color:  var(--clr-bg-light);
+    font-size: var(--fs-small);
+    padding: .5rem;
+    border-radius: 1rem;
+    opacity: .7;
+    flex-wrap: wrap;
+}
+
+.side-menu-content-nav li:hover, .side-menu-top-nav > * > div:hover, .side-menu-content-nav svg {
+    cursor: pointer;
+    opacity: 1;
+}
+
+.side-menu-content-nav {
+    overflow-x: auto;
+}
+
+.side-menu-content , .side-menu-top-nav, .content {
+    overflow-x: hidden;
+    background-color: var(--clr-bg);
+    border-radius: 1rem;
+    padding: 1rem 2rem;
+}
+
+.side-menu-content-results {    
+    max-height: 45vh;
+    overflow-y: auto;
+    
+}
+
+.side-menu-content-results li {    
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    width: 95%;
+    padding: .5rem;
+    border-radius: .5rem;   
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+     
+}
+
+.side-menu-content-results li h2, .side-menu-content-results li h3 {  
+    overflow: hidden;
+    text-overflow: ellipsis;    
+}
+
+.side-menu-content-results li img {
+    border-radius: 10%;
+    width: 18%;
+}
+
+.side-menu-content-results li:hover {
+    cursor: pointer;
+    background-color: var(--clr-bg-light);
+}
+
+.side-menu-content-results h2, .side-menu-content-results h3 { 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-menu-content-results h3 {
+    opacity: .7;  
+    font-size: var(--fs-small);
+}
 
 #root {
     padding-bottom: 10vh;
@@ -243,99 +336,6 @@ tbody:before {
     min-width: 1.25rem;
 }
 
-.side-menu-top-nav > * > div {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-    margin-bottom: 1rem;
-    opacity: .7;
-}
-
-
-.side-menu-content h1 {
-    font-size: var(--fs-big);
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.side-menu-content-nav {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 500;
-    
-}
-
-.side-menu-content-nav li {
-    background-color:  var(--clr-bg-light);
-    font-size: var(--fs-small);
-    padding: .5rem;
-    border-radius: 1rem;
-    opacity: .7;
-    flex-wrap: wrap;
-}
-
-.side-menu-content-nav li:hover, .side-menu-top-nav > * > div:hover, .side-menu-content-nav svg {
-    cursor: pointer;
-    opacity: 1;
-}
-
-.side-menu-content-nav {
-    overflow: scroll;
-    overflow-y: hidden;
-}
-
-.side-menu-content , .side-menu-top-nav, .content {
-    overflow-x: hidden;
-    background-color: var(--clr-bg);
-    border-radius: 1rem;
-    padding: 1rem 2rem;
-}
-
-.side-menu-content-results {    
-    max-height: 45vh;
-    overflow: scroll;
-    overflow-x:hidden;
-}
-
-.side-menu-content-results li {    
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    width: 95%;
-    padding: .5rem;
-    border-radius: .5rem;   
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-     
-}
-
-.side-menu-content-results li h2, .side-menu-content-results li h3 {  
-    overflow: hidden;
-    text-overflow: ellipsis;    
-}
-
-.side-menu-content-results li img {
-    border-radius: 10%;
-    width: 18%;
-}
-
-.side-menu-content-results li:hover {
-    cursor: pointer;
-    background-color: var(--clr-bg-light);
-}
-
-.side-menu-content-results h2, .side-menu-content-results h3 { 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.side-menu-content-results h3 {
-    opacity: .7;  
-    font-size: var(--fs-small);
-}
-
 
 .search-field {
     display: flex;
@@ -413,7 +413,6 @@ tbody:before {
     background-color: white;
     color: black;
     transition: all .7s ease;
-    
 }
 
 .login > div {
@@ -450,8 +449,6 @@ tbody:before {
     margin-bottom: 1rem;
 }
 
-
-
 .episode-btns {
     display: flex;
     align-items: center;
@@ -470,14 +467,11 @@ tbody:before {
 .episode-titles h1:hover, .episode-parent > .list-top-titles > h2:hover {
     cursor: pointer;
     text-decoration: underline; 
-
 }
-
 
 .episode-img{
     max-width: 10rem;
     margin-right: 1rem;
-    
 }
 
 .episode-btns > * {
@@ -527,8 +521,6 @@ tbody:before {
     margin-top: 2rem;
 }
 
-
-
 .episode-bottom p, .show-description p {
     opacity: .6;
 }
@@ -545,7 +537,6 @@ tbody:before {
     bottom: 0;
     margin-inline: auto;
 }
-
 
 .top-results {
     display: flex;
@@ -567,10 +558,6 @@ tbody:before {
     max-width: 40px;
     display: inline;
 }
-
-
-
-
 
 @media (max-width: 50rem) {
     .track-extra-info {
