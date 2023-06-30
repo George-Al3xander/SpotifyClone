@@ -7,7 +7,7 @@ const SpotifyWebApi = require("spotify-web-api-node")
 const app = express()
 app.use(cors())
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+//app.use(bodyParser.urlencoded({ extended: true }))
 
 app.post("/refresh", (req, res) => {
   const refreshToken = req.body.refreshToken
@@ -55,4 +55,4 @@ app.post("/login", (req, res) => {
     })
 })
 
-app.listen("https://clonify-api.onrender.com")
+app.listen(3001)
