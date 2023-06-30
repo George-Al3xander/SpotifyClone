@@ -15,8 +15,13 @@ import DisplayParentEpisode from "../side/DisplayParentEpisode";
 
 
 
-const Dashboard = ({code}) => {
+const Dashboard = ({code, setCode}) => {
   const token =  useAuth(code);  
+
+  useEffect(() => {
+    console.log(token)
+  }, [token])
+  
   const navigate = useNavigate();
   const[currentTrack, setCurrentTrack] = useState("");
 
@@ -41,48 +46,14 @@ const Dashboard = ({code}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentEpisode, setCurrentEpisode] = useState("");
 
-  const testFunction = async () => { 
-    //total - 2146
-    //spotify:show:4rOoJ6Egrf8K2IrywzwOMk
-    //"spotify:episode:5NnstGx7gYZ5hNgwlTULl6"
-    //"spotify:track:1qkih5UIqzvxdrse2YCSPQ"
-    // ////console.log(await getEpisode("5NnstGx7gYZ5hNgwlTULl6"))
-    // setOffset(0);
-    //"49cSxbZ1BWJJZPiCAjoOdv"
-    // let id = "49cSxbZ1BWJJZPiCAjoOdv";
-    // const {data} = await axios.get(`https://api.spotify.com/v1/episodes/${id}`, {
-      //     headers: {
-        //       Authorization: `Bearer ${token}`
-        //     },        
-        //   });
-        
-        //   console.log(data);
-    setCurrentPlayUri("spotify:track:1qkih5UIqzvxdrse2YCSPQ");
-    setClickStatus(true);
-    let uri = "spotify:episode:5NnstGx7gYZ5hNgwlTULl6";
-    await axios.post(`https://api.spotify.com/v1/me/player/queue`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-        },   
-        params: {
-          uri: uri,         
-        }             
-      });
-      
-
-    const url = `https://api.spotify.com/v1/me/player/queue?uri=${uri}`
-    try {
-      await axios.post(url, null,{
+  const testFunction = async () => {
+    const {data} = await axios.get(`https://api.spotify.com/v1/me`, {
         headers: {
           Authorization: `Bearer ${token}`
-        },
-      });
-      
-      setClickStatus(true);
-      
-    } catch(err) {
-      console.log(err)
-    }
+        },        
+      }); 
+      console.log(data)
+    //setCode(null)
   } 
   
   const displayAlbum = async (id) => {
@@ -414,6 +385,10 @@ const Dashboard = ({code}) => {
             setCurrentPlayUri={setCurrentPlayUri}
         />
         <div className="content">
+          <div className="header">
+
+              <button onClick={testFunction}>Logout</button>
+          </div>
           <Routes>
              <Route path="/" element={<Home />}/>
              <Route path="/playlist"  
