@@ -4,6 +4,10 @@ import { displayEpisodeDate, displayEpisodeDuration } from "../../utilityFunctio
 const DisplayParentEpisode = ({episode, playStatus,clickPlay, currentTrack, setPlayStatus, displayShow, isLoading}) => {
    
    return(
+    isLoading == true ? 
+
+                <div className="loading-screen"><img src={loadingGif} alt="" /> </div>
+                : 
     <div className="list">
         <div className="episode-parent list-top">
                 <div className="list-top-img">

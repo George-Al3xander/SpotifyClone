@@ -12,10 +12,11 @@ import { spotifyApi } from "react-spotify-web-playback";
 import DisplayAlbum from "../side/DisplayAlbum";
 import DisplayShow from "../side/DisplayShow";
 import DisplayParentEpisode from "../side/DisplayParentEpisode";
+import Header from "./Header";
 
 
 
-const Dashboard = ({code}) => {
+const Dashboard = ({code, setCode}) => {
   const token =  useAuth(code);  
   const navigate = useNavigate();
   const[currentTrack, setCurrentTrack] = useState("");
@@ -31,7 +32,32 @@ const Dashboard = ({code}) => {
   const [currentShow, setCurrentShow] = useState({});  
   const [currentDisplayEpisode, setCurrentDisplayEpisode] = useState({});  
   const [currentSearch, setCurrentSearch] = useState({});  
+  const [currentUser, setCurrentUser] = useState({});
 
+  useEffect(() => {    
+    const checkUser = async () => {
+      if(Object.keys(currentUser).length === 0 && token != undefined) {
+        const {data} = await axios.get(`https://api.spotify.com/v1/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },        
+        });        
+        setCurrentUser({
+          name: data.display_name,
+          link: data.external_urls.spotify,
+          img: data.images[0].url,
+          id: data.id,
+          uri: data.uri
+        })
+
+      }
+    }
+
+    checkUser();
+    
+  }, [token])
+  
+  
   const [clickStatus, setClickStatus] = useState(false); 
   const [currentDevice, setCurrentDevice] = useState("");
   const [shuffleStatus, setShuffleStatus] = useState(false);
@@ -42,51 +68,18 @@ const Dashboard = ({code}) => {
   const [currentEpisode, setCurrentEpisode] = useState("");
 
   const testFunction = async () => { 
-    //total - 2146
-    //spotify:show:4rOoJ6Egrf8K2IrywzwOMk
-    //"spotify:episode:5NnstGx7gYZ5hNgwlTULl6"
-    //"spotify:track:1qkih5UIqzvxdrse2YCSPQ"
-    // ////console.log(await getEpisode("5NnstGx7gYZ5hNgwlTULl6"))
-    // setOffset(0);
-    //"49cSxbZ1BWJJZPiCAjoOdv"
-    // let id = "49cSxbZ1BWJJZPiCAjoOdv";
-    // const {data} = await axios.get(`https://api.spotify.com/v1/episodes/${id}`, {
-      //     headers: {
-        //       Authorization: `Bearer ${token}`
-        //     },        
-        //   });
-        
-        //   console.log(data);
-    setCurrentPlayUri("spotify:track:1qkih5UIqzvxdrse2YCSPQ");
-    setClickStatus(true);
-    let uri = "spotify:episode:5NnstGx7gYZ5hNgwlTULl6";
-    await axios.post(`https://api.spotify.com/v1/me/player/queue`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-        },   
-        params: {
-          uri: uri,         
-        }             
-      });
-      
+    const {data} = await axios.get(`https://api.spotify.com/v1/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },        
+        });
 
-    const url = `https://api.spotify.com/v1/me/player/queue?uri=${uri}`
-    try {
-      await axios.post(url, null,{
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-      });
-      
-      setClickStatus(true);
-      
-    } catch(err) {
-      console.log(err)
-    }
+      console.log(data)
   } 
   
   const displayAlbum = async (id) => {
     setIsLoading(true);
+    navigate("/album");    
     let album;
     if(localStorage.getItem(id) == null) {
       album = await getAlbum(id);
@@ -96,11 +89,11 @@ const Dashboard = ({code}) => {
     }
     setCurrentAlbum(album);
     setIsLoading(false);
-    navigate("/album");    
   }
 
   const displayPlaylist = async (id) => {  
     setIsLoading(true);
+    navigate("/playlist"); 
     let playlist; 
     if(localStorage.getItem(id) == null) {
       playlist = await getPlaylist(id);
@@ -108,9 +101,9 @@ const Dashboard = ({code}) => {
     } else {
       playlist =  JSON.parse(localStorage.getItem(id))
     }    
+    console.log(playlist);
     setCurrentPlaylist(playlist);
     setIsLoading(false);
-    navigate("/playlist"); 
     setTimeout(async () => {
       let playlistApi = await getPlaylist(id);      
       let playlistStorage = JSON.parse(localStorage.getItem(id));
@@ -122,6 +115,9 @@ const Dashboard = ({code}) => {
   }
 
   const displayShow = async (id) => {
+    setIsLoading(true);
+    navigate("/show");
+
     let show;
     if(localStorage.getItem(id) == null) {
       show = await getShow(id);
@@ -130,7 +126,6 @@ const Dashboard = ({code}) => {
       show =  JSON.parse(localStorage.getItem(id))
     }
     setCurrentShow(show);
-    navigate("/show")
 
     setTimeout(async () => {
       let showApi = await getShow(id);      
@@ -142,10 +137,13 @@ const Dashboard = ({code}) => {
         console.log('Here')   
       }
     },1)
+    setIsLoading(false);
     
   }
 
   const displayEpisode = async (id) => {
+    setIsLoading(true);
+    navigate("/episode");
     let episode;
 
     if(localStorage.getItem(id) == null) {
@@ -155,7 +153,7 @@ const Dashboard = ({code}) => {
       episode =  JSON.parse(localStorage.getItem(id))
     }
     setCurrentDisplayEpisode(episode);
-    navigate("/episode")
+    setIsLoading(false);
   }
  
     const getPlaylist = async (id) => {       
@@ -168,7 +166,13 @@ const Dashboard = ({code}) => {
         },        
       }); 
       let tracks = await  getPlaylistTracks(token,data.tracks);      
-      let duration = msToTime(tracks);     
+      let duration = msToTime(tracks);   
+      let isFollowed = await axios.get(`https://api.spotify.com/v1/playlists/${data.id}/followers/contains?ids=${currentUser.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },        
+      });
+      isFollowed = isFollowed.data[0]
       return {
         tracks: tracks,
         name: data.name,
@@ -184,7 +188,8 @@ const Dashboard = ({code}) => {
         img: data.images.length > 1 ? data.images[1].url : data.images[0].url,
         
         duration: duration,
-        isPublic: data.public
+        isPublic: data.public,
+        isFollowed: isFollowed
       }
     }
    
@@ -400,6 +405,13 @@ const Dashboard = ({code}) => {
       
       setCurrentEpisode(episode.uri);
     }
+
+    const logout = async() => {
+      const url = 'https://www.spotify.com/logout/'                                                                                                      
+      const spotifyLogoutWindow = window.open(url, 'Spotify Logout', 'width=700,height=500,top=40,left=40')                                                                                                
+      setTimeout(() => spotifyLogoutWindow.close(), 2000)
+      setCode(null)
+    }
     
     return (
       <>   
@@ -413,7 +425,8 @@ const Dashboard = ({code}) => {
             clickStatus={clickStatus}
             setCurrentPlayUri={setCurrentPlayUri}
         />
-        <div className="content">
+        <div className="content"> 
+        <Header user={currentUser} logout={logout}/>         
           <Routes>
              <Route path="/" element={<Home />}/>
              <Route path="/playlist"  
@@ -463,6 +476,8 @@ const Dashboard = ({code}) => {
                           }} 
                           clickPlay={clickEpisodePlay}
                           setOffset={setOffset}
+                          isLoading={isLoading}                         
+
 
             />}/>
             <Route path="/episode" 

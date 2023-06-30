@@ -1,9 +1,11 @@
 import Login from './components/main/Login'
 import Dashboard from './components/main/Dashboard';
+import { useState } from 'react';
 
-const code = new URLSearchParams(window.location.search).get("code");
+
 function App() {
-  return code ? <Dashboard code={code} /> : <Login />
+  const [code, setCode] =  useState(new URLSearchParams(window.location.search).get("code"));
+  return code != null ? <Dashboard setCode={setCode} code={code} /> : <Login />
 }
 
 export default App

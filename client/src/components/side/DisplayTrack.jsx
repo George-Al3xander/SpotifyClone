@@ -1,9 +1,8 @@
 import React, {useRef, useState} from "react";
 import { displayTrackDuration, getDateSorted} from "../../utilityFunctions";
-import axios from "axios";
 
-const DisplayTrack = ({track, type, num, currentTrack, clickTrack, followTrack, unfollowTrack,currentPlaylistUri,currentPlayUri, setOffset}) => {
-    //types : album, playlist, search
+
+const DisplayTrack = ({track, type, num, currentTrack, clickTrack, followTrack, unfollowTrack,currentPlaylistUri,currentPlayUri}) => {
     const [isHovered, setIsHovered] = useState(false);
     const item = useRef();
     const header1 = useRef();

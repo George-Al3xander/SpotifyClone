@@ -29,7 +29,6 @@ const Player = ({token, uri, clickStatus, setCurrentDevice, shuffle, shuffleStat
             localStorage.setItem("recentTrack", state.track.uri) 
         }           
         document.body.style.paddingBottom = `${item.current.ref.current.offsetHeight} px`;   
-        console.log(state)     
     }}  
     uris={uri} 
     components={{

@@ -191,8 +191,7 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow, displayEpiso
         if(searchKey != "" ) {
             setEverything();
         }
-    }, [searchKey]);
-    
+    }, [searchKey]);    
     return(
         <div className="search">
             <div ref={itemDiv} className="search-field">
@@ -213,6 +212,8 @@ const Search = ({token, displayAlbum, displayPlaylist, displayShow, displayEpiso
                 placeholder="What do you want to listen to?" type="text" />
 
             </div>
+               
+
 
             <div className="search-results">
                 {(searchKey != "" && topResult != undefined && Object.keys(topResult).length !== 0 && resultsTracks != undefined) ? 

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import DisplayEpisode from "./DisplayChildrenEpisode";
 import { getShowsEpisodes } from "../../utilityFunctions";
+import loadingGif from "../../assets/images/loading.gif"
 import axios from "axios";
 
-const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode,}) => {   
+const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setPlayStatus, clickPlay, displayEpisode,isLoading}) => {   
     const [offset, setOffset] = useState(show.total-1);
     const [episodes, setEpisodes] = useState(show.episodes); 
    
@@ -74,6 +75,10 @@ const DisplayShow = ({show, token, currentTrack, currentPlayUri, playStatus,setP
     
     
     return(
+        isLoading == true ? 
+
+                <div className="loading-screen"><img src={loadingGif} alt="" /> </div>
+                : 
         <div className="list">
             <div className="list-top">
                 <div className="list-top-img">

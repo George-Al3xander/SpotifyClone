@@ -419,6 +419,10 @@ tbody:before {
     margin-top: 20%;
 }
 
+.login h2 {
+    color: grey;
+}
+
 
 .loading-screen img, .home h1 {
     margin-block: auto;
@@ -557,6 +561,49 @@ tbody:before {
 .loading-gif {
     max-width: 40px;
     display: inline;
+}
+
+.header {
+    position: relative;
+    margin: .5rem;
+    
+    
+}
+
+.header-btn {
+    max-width: 2.5rem;
+    margin-left: auto;
+}
+
+.header-btn:hover {
+    cursor: pointer;
+    scale: 1.1;
+}
+
+.header-btn img {
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+    margin-left: auto;
+    
+}
+
+.header ul {
+    position: absolute;
+    background-color: var(--clr-bg);
+    border-radius: .5rem;    
+    z-index: 11;
+    top: 110%;
+    right: 0;
+}
+
+.header ul li {  
+    border-radius: .5rem; 
+    padding: .5rem 1rem;
+}
+
+.header ul li:hover {
+    cursor: pointer;
+    background-color: var(--clr-bg-light);
 }
 
 @media (max-width: 50rem) {
